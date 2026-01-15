@@ -1,17 +1,30 @@
 import React from 'react';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input,notification } from 'antd';
 import api from '../../api/axios';
+
 const onFinish = async(values) => {
   console.log('Success:', values);
+
 try {
     const response =  await api.post("/login",values)
-    console.log(response)
+    console.log(response.data)
+    localStorage.setItem("token",response?.data?.token)
+    notification.success({
+      title: "Success",
+      description:response.data?.message || "loggedIn...!y",
+      placement:"topRight"
+    })
 } catch (error) {
-  console.log(error.response?.data || error.message)
+   notification.error({
+    title:" Login failed",
+    description: "Invalid email or password",
+    placement:'topRight'
+  })
 }
 };
 const onFinishFailed = errorInfo => {
   console.log('Failed:', errorInfo);
+ 
 };
 const Login = () => (
   <div style={{

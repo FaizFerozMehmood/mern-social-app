@@ -32,6 +32,7 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email })
+    console.log(user)
     if (!user) {
       return res.status(404).json({ message: "user not found..!" })
     }
@@ -46,7 +47,7 @@ export const login = async (req, res) => {
     if (!token) {
       return res.status(400).json({ message: "error generating user token..!" })
     }
-    return res.status(201).json({ message: "user loggedIn..!", email: user.email, token })
+    return res.status(201).json({ message: "user loggedIn..!", email: user.email,id:user._id ,token })
   } catch (error) {
     return res.status(500).json({ message: "error while logging..", error: error.message });
 
