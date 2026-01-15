@@ -1,0 +1,13 @@
+/* Global Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Full height setup */
+html, body {
+  height: 100%;
+}
