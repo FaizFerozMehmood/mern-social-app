@@ -19,3 +19,14 @@ export const controlPost = async(req,res)=>{
         return res.status(500).json({message:"error in post controller...",error:error.message})
     }
 }
+export const getPosts = async(req,res)=>{
+    try {
+        const posts = await Post.find();
+        if(!posts){
+            return res.status(404).json({message:"eror getting posts"})
+        }
+        return res.status(200).json({message:"Posts fetched..!",posts})
+    } catch (error) {
+      return  res.status(500).json({message:"error getting post..!",error:error.message})
+    }
+}
