@@ -3,6 +3,8 @@ import Post from "../models/postModel.js";
 export const addCommentOnPost = async(req,res)=>{
     try {
         const {text} = req.body;
+        const userId= req.user.id
+        console.log(userId,"------------> userid")
         const {postId} = req.params;
         console.log("postId=====",postId)
         const post = await Post.findById(postId)

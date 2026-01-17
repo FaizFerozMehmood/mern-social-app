@@ -4,7 +4,7 @@ const commentsSchema = new mongoose.Schema({
     text:String,
     userId:{
        type: mongoose.Schema.Types.ObjectId,
-       ref:"User"
+       ref:"users"
     },
 
 },{timestamps:true})
@@ -24,7 +24,7 @@ const postSchema = new mongoose.Schema({
     },
     userId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"User"
+        ref:"users"
     },
     comments : [commentsSchema],
 },{timestamps:true})

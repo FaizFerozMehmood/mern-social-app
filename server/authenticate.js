@@ -9,8 +9,9 @@ export const authenticate = async (req, res, next) => {
             token,
             "token"
         )
-        const user = decoded
-        req.user = user
+       req.user = {
+      id: decoded.userId
+    }
         next()
     } catch (error) {
         res.status(401).json({ message: "invalid request..!", error: error.message })
