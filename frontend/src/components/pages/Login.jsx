@@ -1,33 +1,45 @@
 import React from 'react';
 import { Button, Checkbox, Form, Input,notification } from 'antd';
 import api from '../../api/axios';
+import { Link } from "react-router-dom";
+import { useState } from 'react';
 
-const onFinish = async(values) => {
+
+
+
+
+function Login() {
+  const [isLoading,setIsLoading] = useState(false)
+  const onFinish = async(values) => {
   console.log('Success:', values);
 
 try {
+  setIsLoading(true)
     const response =  await api.post("/login",values)
     console.log(response.data)
     localStorage.setItem("token",response?.data?.token)
     notification.success({
       title: "Success",
-      description:response.data?.message || "loggedIn...!y",
+      description:response.data?.message || "loggedIn...",
       placement:"topRight"
     })
 } catch (error) {
    notification.error({
-    title:" Login failed",
+    title: error.response.data?.message || "Login failed",
     description: "Invalid email or password",
     placement:'topRight'
   })
+}finally{
+  setIsLoading(false)
 }
 };
 const onFinishFailed = errorInfo => {
   console.log('Failed:', errorInfo);
  
 };
-const Login = () => (
-  <div style={{
+
+  return (
+    <div style={{
     backgroundColor:"#f5f7fa",
     minHeight:"100vh",
     // minWidth:"100%",
@@ -69,9 +81,9 @@ const Login = () => (
       <Input.Password />
     </Form.Item>
 
-    <Form.Item name="remember" valuePropName="checked" label={null}>
+    {/* <Form.Item name="remember" valuePropName="checked" label={null}>
       <Checkbox>Remember me</Checkbox>
-    </Form.Item>
+    </Form.Item> */}
 
     <Form.Item label={null}>
       <div style={{
@@ -81,14 +93,24 @@ const Login = () => (
 
       <Button style={{
         padding:"20px 90px",
-      }} type="primary" htmlType="submit">
-        Submit
+      }} type="primary" htmlType="submit" loading={isLoading} disabled={isLoading}>
+      Login
       </Button>
+
         </div>
+         <div style={{ 
+        display:'flex',
+        justifyContent:"center"
+      }}>
+        <p style={{marginTop:"20px"}}>Dont have an account? <Link to={'/register'}>Register Now!</Link></p>
+
+      </div>
     </Form.Item>
   </Form>
     </div>
 
   </div>
-);
-export default Login;
+  )
+}
+
+export default Login
