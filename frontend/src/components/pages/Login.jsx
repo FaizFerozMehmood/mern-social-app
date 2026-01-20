@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Checkbox, Form, Input,notification } from 'antd';
 import api from '../../api/axios';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from 'react';
 
 
@@ -10,6 +10,7 @@ import { useState } from 'react';
 
 function Login() {
   const [isLoading,setIsLoading] = useState(false)
+  const navigate = useNavigate()
   const onFinish = async(values) => {
   console.log('Success:', values);
 
@@ -23,6 +24,9 @@ try {
       description:response.data?.message || "loggedIn...",
       placement:"topRight"
     })
+    setTimeout(()=>{
+   navigate('/posts')
+    },2000)
 } catch (error) {
    notification.error({
     title: error.response.data?.message || "Login failed",
@@ -102,7 +106,7 @@ const onFinishFailed = errorInfo => {
         display:'flex',
         justifyContent:"center"
       }}>
-        <p style={{marginTop:"20px"}}>Dont have an account? <Link to={'/register'}>Register Now!</Link></p>
+        <p style={{marginTop:"20px"}}>Don't have an account? <Link to={'/register'}>Register Now!</Link></p>
 
       </div>
     </Form.Item>

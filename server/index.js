@@ -1,14 +1,15 @@
+import dotenv from "dotenv"
+dotenv.config()
 
 console.log("bissmillah.........!")
 
 import express from "express";
-import dotenv from "dotenv"
 import cors from "cors"
 import { connectdataBase } from "./config/connectDB.js";
 import userRoutes from "./routes/userRoutes.js"
 import postRoutes from "./routes/postRoute.js"
 import comments from "./routes/commentRoute.js"
-dotenv.config()
+import uploadFile from "./routes/uploadFile.js"
 
 connectdataBase()
 
@@ -29,6 +30,8 @@ app.use(cors({
 app.use("/",userRoutes)
 app.use("/post",postRoutes)
 app.use("/comments",comments)
+app.use("/upload",uploadFile)
+
 
 app.listen(2000,()=>{
 console.log(`server is running on 2000`)
