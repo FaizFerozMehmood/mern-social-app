@@ -23,6 +23,10 @@ export const getPosts = async(req,res)=>{
     try {
         const posts = await Post.find()
         .populate({
+            path:"userId",
+            select:"userName profileImage"
+        })
+        .populate({
             path:"comments.userId",
             select:"userName profileImage"
         })
