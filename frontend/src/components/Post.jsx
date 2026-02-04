@@ -1,102 +1,382 @@
-import React, { useEffect, useState } from 'react'
-import api from '../api/axios'
-import { Avatar } from 'antd'
-import { CommentOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from "react";
+import api from "../api/axios";
+import { Avatar } from "antd";
+import {
+  LikeOutlined,
+  CommentOutlined,
+  ShareAltOutlined,
+} from "@ant-design/icons";
 
 function Post() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState([]);
+  const [showComments, setShowComments] = useState({});
+  const [mycomment, setMycomment] = useState("");
+
+  const handleCommentSubmit = async (postId) => {
+    const token = localStorage.getItem("token");
+    const response = await api.post(
+      `/comments/${postId}/comment`,
+      { text: mycomment },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+    console.log(response, "comment response===>>");
+    // getPosts()
+  };
+  const toggleComments = (postId) => {
+    setShowComments((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+  };
 
   useEffect(() => {
     const getPosts = async () => {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem("token");
 
       try {
-        const response = await api.get('/post', {
+        const response = await api.get("/post", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        });
 
-        setData(response.data.posts)
-
+        setData(response.data.posts);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
+    };
 
-    getPosts()
-  }, [])
+    getPosts();
+  }, [handleCommentSubmit]);
 
   return (
-    <div>
-      {data.map((d) => (
-        <div
-          key={d._id}
-          style={{ border: '1px solid #ccc', margin: '10px', padding: '10px' }}
-        >
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-           {d.userId?.profileImage ? (
-  <img
-    src={d.userId.profileImage}
-    alt="creator"
-    height={40}
-    width={40}
-    style={{ borderRadius: '50%' }}
-  />
-) : (
-      <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00' }}>{d.userId?.userName.split('')[0]}</Avatar>
-
-)}
-            <strong>{d.userId?.userName}</strong>
-          </div>
-
-          <p>{new Date(d.createdAt).toLocaleString()}</p>
-          <p>{d.postMessage}</p>
-
-          {d.selectedFile && (
-            <img src={d.selectedFile} alt="post" height={100} width={100} />
-          )}
-
-          <p>Likes: {d.likeCount}</p>
-
-          
-          <div style={{ marginLeft: '20px' }}>
-            <h4>Comments</h4>
-
-            {d.comments.length === 0 && <p>No comments</p>}
-
-            {d.comments.map((c) => (
-              <div key={c._id} style={{ marginBottom: '8px' }}>
-                <p>{c.text}</p>
-<CommentOutlined />
-               
-                <small>
-                  Comment by: {c.userId?.userName || 'Anonymous'}
-                </small>
- <small>
-                   {new Date(c.createdAt).toLocaleString()}
-                </small>
-                <br />
-
-                {c.userId?.profileImage && (
+    <div
+      style={{
+        backgroundColor: "#f0f2f5",
+        minHeight: "100vh",
+        padding: "20px 0",
+      }}
+    >
+      <div style={{ maxWidth: "680px", margin: "0 auto" }}>
+        {data.map((d) => (
+          <div
+            key={d._id}
+            style={{
+              backgroundColor: "#fff",
+              borderRadius: "8px",
+              boxShadow: "0 1px 2px rgba(0, 0, 0, 0.2)",
+              marginBottom: "16px",
+              overflow: "hidden",
+            }}
+          >
+            {/* Post Header */}
+            <div style={{ padding: "12px 16px" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
+                {d.userId?.profileImage ? (
                   <img
-                    src={c.userId.profileImage || c.userId?.userName.split('').toUpperCase()[0] }
-                    alt="comment-user"
-                    height={30}
-                    width={30}
+                    src={d.userId.profileImage}
+                    alt="creator"
+                    height={40}
+                    width={40}
+                    style={{ borderRadius: "50%", objectFit: "cover" }}
                   />
+                ) : (
+                  <Avatar
+                    size={40}
+                    style={{
+                      backgroundColor: "#1877f2",
+                      color: "#fff",
+                      fontSize: "18px",
+                    }}
+                  >
+                    {d.userId?.userName.charAt(0).toUpperCase()}
+                  </Avatar>
                 )}
-                
-
+                <div style={{ flex: 1 }}>
+                  <strong style={{ fontSize: "15px", color: "#050505" }}>
+                    {d.userId?.userName}
+                  </strong>
+                  <div style={{ fontSize: "13px", color: "#65676b" }}>
+                    {new Date(d.createdAt).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
 
-        </div>
-      ))}
+            {/* Post Content */}
+            <div
+              style={{
+                padding: "0 16px 12px",
+                fontSize: "15px",
+                color: "#050505",
+                lineHeight: "1.3333",
+              }}
+            >
+              {d.postMessage}
+            </div>
+
+            {/* Post Image */}
+            {d.selectedFile && (
+              <img
+                src={d.selectedFile}
+                alt="post"
+                style={{
+                  width: "100%",
+                  display: "block",
+                  maxHeight: "600px",
+                  objectFit: "cover",
+                }}
+              />
+            )}
+
+            {/* Like and Comment Count */}
+            <div
+              style={{
+                padding: "8px 16px",
+                borderBottom: "1px solid #e4e6eb",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ fontSize: "15px", color: "#65676b" }}>
+                {d.likeCount} {d.likeCount === 1 ? "like" : "likes"}
+              </span>
+              {d.comments.length >= 0 && (
+                <span
+                  style={{
+                    fontSize: "15px",
+                    color: "#65676b",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => toggleComments(d._id)}
+                >
+                  {d.comments.length}{" "}
+                  {d.comments.length === 1 ? "comment" : "comments"}
+                </span>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div
+              style={{
+                display: "flex",
+                borderBottom: "1px solid #e4e6eb",
+                padding: "4px 16px",
+              }}
+            >
+              <button
+                style={{
+                  flex: 1,
+                  padding: "8px",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  color: "#65676b",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                }}
+              >
+                <LikeOutlined style={{ fontSize: "18px" }} />
+                Like
+              </button>
+              <button
+                onClick={() => toggleComments(d._id)}
+                // onClick={() => handleCommentSubmit(d._id)}
+
+                style={{
+                  flex: 1,
+                  padding: "8px",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  color: "#65676b",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                }}
+              >
+                {/* <input type="text" onChange={(e)=> setMycomment(e.target.value)}/> */}
+                <CommentOutlined style={{ fontSize: "18px" }} />
+                Comment
+                {/* <button>Comment</button> */}
+              </button>
+              <button
+                style={{
+                  flex: 1,
+                  padding: "8px",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  color: "#65676b",
+                  borderRadius: "4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                }}
+              >
+                <ShareAltOutlined style={{ fontSize: "18px" }} />
+                Share
+              </button>
+            </div>
+
+            {/* Comment Input Section */}
+            <div
+              style={{
+                padding: "8px 16px",
+                display: "flex",
+                gap: "8px",
+                alignItems: "center",
+              }}
+            >
+              <Avatar size={32} style={{ backgroundColor: "#87d068" }}>
+                U
+              </Avatar>
+              <div
+                style={{
+                  flex: 1,
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "center",
+                  backgroundColor: "#f0f2f5",
+                  borderRadius: "20px",
+                  padding: "4px 12px",
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Write a comment..."
+                  value={mycomment}
+                  onChange={(e) => setMycomment(e.target.value)}
+                  style={{
+                    width: "100%",
+                    border: "none",
+                    background: "transparent",
+                    outline: "none",
+                    padding: "8px 0",
+                    fontSize: "14px",
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    handleCommentSubmit(d._id);
+                    setMycomment(""); // Clear input after clicking
+                  }}
+                  disabled={!mycomment.trim()}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    color: mycomment.trim() ? "#1877f2" : "#bcc0c4",
+                    fontWeight: "600",
+                    cursor: mycomment.trim() ? "pointer" : "default",
+                    padding: "0 8px",
+                  }}
+                >
+                  Post
+                </button>
+              </div>
+            </div>
+
+            {/* Comments Section */}
+            {showComments[d._id] && d.comments.length > 0 && (
+              <div style={{ padding: "12px 16px" }}>
+                {d.comments.map((c) => (
+                  <div
+                    key={c._id}
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    {c.userId?.profileImage ? (
+                      <img
+                        src={c.userId.profileImage}
+                        alt="comment-user"
+                        height={32}
+                        width={32}
+                        style={{ borderRadius: "50%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <Avatar
+                        size={32}
+                        style={{
+                          backgroundColor: "#e4e6eb",
+                          color: "#65676b",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {c.userId?.userName?.charAt(0).toUpperCase() || "A"}
+                      </Avatar>
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          backgroundColor: "#f0f2f5",
+                          borderRadius: "18px",
+                          padding: "8px 12px",
+                          display: "inline-block",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "13px",
+                            fontWeight: "600",
+                            color: "#050505",
+                          }}
+                        >
+                          {c.userId?.userName || "Anonymous"}
+                        </div>
+                        <div style={{ fontSize: "15px", color: "#050505" }}>
+                          {c.text}
+                        </div>
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#65676b",
+                          paddingLeft: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
+                        {new Date(c.createdAt).toLocaleString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                          hour: "numeric",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
 
-export default Post
+export default Post;

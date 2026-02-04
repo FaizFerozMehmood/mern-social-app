@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes.js"
 import postRoutes from "./routes/postRoute.js"
 import comments from "./routes/commentRoute.js"
 import uploadFile from "./routes/uploadFile.js"
+import likeRoute from "./routes/likeroute.js"
 
 connectdataBase()
 
@@ -30,7 +31,9 @@ app.use(cors({
 app.use("/",userRoutes)
 app.use("/post",postRoutes)
 app.use("/comments",comments)
+app.use('/likes',likeRoute)
 app.use("/upload",uploadFile)
+app.use("/profile",uploadFile)
 
 
 app.listen(2000,()=>{
