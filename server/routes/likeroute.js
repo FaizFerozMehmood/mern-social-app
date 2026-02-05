@@ -6,6 +6,6 @@ import { authenticate } from "../authenticate.js";
 
 const router = express.Router()
 
-router.post('/:id/like', authenticate,LikePost)
+router.get('/:id/like', authenticate,LikePost)
 
 export default router;

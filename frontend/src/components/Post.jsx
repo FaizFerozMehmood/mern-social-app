@@ -8,10 +8,32 @@ import {
 } from "@ant-design/icons";
 
 function Post() {
+
   const [data, setData] = useState([]);
   const [showComments, setShowComments] = useState({});
   const [mycomment, setMycomment] = useState("");
+  // const [isLiked, setIsliked] = useState(false)
 
+  const getPosts = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await api.get("/post", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setData(response.data.posts);
+      console.log(response.data )
+    } catch (error) {
+      console.log(error);
+    }
+  };
+   useEffect(() => {
+
+    getPosts();
+  }, []);
   const handleCommentSubmit = async (postId) => {
     const token = localStorage.getItem("token");
     const response = await api.post(
@@ -30,26 +52,50 @@ function Post() {
       [postId]: !prev[postId],
     }));
   };
+const handleLikeBtnn = async (postId) => {
+  
+ 
+  setData((prev) =>
+    prev.map((post) =>
+      post._id === postId
+  ? {
+    ...post,
+    isLiked: !post.isLiked,
+    likesCount: post.isLiked
+    ? post.likesCount - 1
+    : post.likesCount + 1,
+  }
+  : post
+)
+);
 
-  useEffect(() => {
-    const getPosts = async () => {
-      const token = localStorage.getItem("token");
+try {
+    const token = localStorage.getItem("token");
+   const res = await api.get(`/likes/${postId}/like`, {
+  headers: { Authorization: `Bearer ${token}` },
+}
+    );
 
-      try {
-        const response = await api.get("/post", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    const { liked, count } = res.data;
 
-        setData(response.data.posts);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+    // Sync with backend response
+    setData((prev) =>
+      prev.map((post) =>
+        post._id === postId
+          ? { ...post, isLiked: liked, likesCount: count }
+          : post
+      )
+    );
+  } catch (err) {
+    console.error(err);
+    getPosts(); // fallback in case of error
+  }
+};
 
-    getPosts();
-  }, [handleCommentSubmit]);
+
+// const {count,liked } =response.data?.success
+// console.log(count,liked)
+ 
 
   return (
     <div
@@ -149,7 +195,8 @@ function Post() {
               }}
             >
               <span style={{ fontSize: "15px", color: "#65676b" }}>
-                {d.likeCount} {d.likeCount === 1 ? "like" : "likes"}
+                  {d.likesCount} {d.likesCount === 1 ? "like" : "likes"}
+                {/* {d.likes.length} {d.likes.length === 1 ?"like":"likes"} */}
               </span>
               {d.comments.length >= 0 && (
                 <span
@@ -175,6 +222,7 @@ function Post() {
               }}
             >
               <button
+              onClick={()=>handleLikeBtnn(d._id)}
                 style={{
                   flex: 1,
                   padding: "8px",
@@ -183,7 +231,7 @@ function Post() {
                   cursor: "pointer",
                   fontSize: "15px",
                   fontWeight: "600",
-                  color: "#65676b",
+                  color: d.isLiked ? "blue" : "#65676b",
                   borderRadius: "4px",
                   display: "flex",
                   alignItems: "center",
@@ -191,7 +239,7 @@ function Post() {
                   gap: "6px",
                 }}
               >
-                <LikeOutlined style={{ fontSize: "18px" }} />
+                <LikeOutlined style={{ fontSize: "18px" ,    color: d.isLiked ? "blue" : "#65676b"}} />
                 Like
               </button>
               <button
