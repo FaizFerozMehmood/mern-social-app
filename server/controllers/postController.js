@@ -36,3 +36,19 @@ export const getPosts = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getUserPost = async(req,res)=>{
+  try {
+    const {userId} = req.params;
+    const posts = await Post.find({userId})
+    if(!posts){
+      return res.status(404).json({message:"post not found"})
+    }
+    if(posts.length===0){
+      return res.status(404).json({message:"No posts found"})
+    }
+    return res.status(200).json({message:"Posts fetched",posts})
+  } catch (error) {
+     res.status(500).json({ message: error.message });
+  }
+}
