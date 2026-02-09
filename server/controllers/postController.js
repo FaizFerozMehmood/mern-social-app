@@ -37,18 +37,59 @@ export const getPosts = async (req, res) => {
   }
 };
 
-export const getUserPost = async(req,res)=>{
+// export const getUserPost = async(req,res)=>{
+//   try {
+//     const {userId} = req.params;
+//     const posts = await Post.find({userId})
+//      .populate("userId", "userName profileImage")
+//       .populate("comments.userId", "userName profileImage")
+//       .lean()
+//     if(!posts){
+//       return res.status(404).json({message:"post not found"})
+//     }
+//     if(posts.length===0){
+//       return res.status(404).json({message:"No posts found"})
+//     }
+//      const finalPosts = posts.map((post) => ({
+//       ...post,
+//       likesCount: post.likes.length,
+//       isLiked: post.likes.some((id) => id.toString() === userId),
+//     }));
+//     return res.status(200).json({message:"Posts fetched",posts})
+//   } catch (error) {
+//      res.status(500).json({ message: error.message });
+//   }
+// }
+export const getUserPost = async (req, res) => {
   try {
-    const {userId} = req.params;
-    const posts = await Post.find({userId})
-    if(!posts){
-      return res.status(404).json({message:"post not found"})
+    const { userId } = req.params;  
+    console.log("userID",userId)  
+    const loggedInUserId = req.user.id; 
+    console.log("logged",loggedInUserId)
+
+    const posts = await Post.find({ userId })
+      .populate("userId", "userName profileImage")
+      .populate("comments.userId", "userName profileImage")
+      .lean();
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: "No posts found" });
     }
-    if(posts.length===0){
-      return res.status(404).json({message:"No posts found"})
-    }
-    return res.status(200).json({message:"Posts fetched",posts})
+
+    const finalPosts = posts.map((post) => ({
+      ...post,
+      likesCount: post.likes.length,
+      isLiked: post.likes.some(
+        (id) => id.toString() === loggedInUserId
+      ),
+    }));
+
+    return res.status(200).json({
+      message: "Posts fetched",
+      posts: finalPosts,
+    });
+
   } catch (error) {
-     res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
-}
+};

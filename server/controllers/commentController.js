@@ -16,9 +16,12 @@ export const addCommentOnPost = async(req,res)=>{
             userId:req.user.id
         })
         await post.save()
+        const populatedPost = await Post.findById(post._id)
+        .populate("userId", "userName profileImage")
+        .populate("comments.userId", "userName profileImage");
         res.status(201).json({
             message:"You commented on the post..!",
-            post
+            post : populatedPost
         })
     } catch (error) {
         console.log("error commenting on the post..!",error.message)
