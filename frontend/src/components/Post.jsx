@@ -1,23 +1,35 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/axios";
 import { Avatar } from "antd";
+import { useNavigate } from "react-router-dom";
 import {
   LikeOutlined,
   CommentOutlined,
   ShareAltOutlined,
 } from "@ant-design/icons";
+import Loader from "./Loader";
 
 function Post() {
-
   const [data, setData] = useState([]);
   const [showComments, setShowComments] = useState({});
   const [mycomment, setMycomment] = useState("");
-  // const [isLiked, setIsliked] = useState(false)
-
+  const [isloading, setIsLoading] = useState(false)
+  const [isCommentLoading, setIsCommentLoading] = useState({})
+  const navigate = useNavigate();
+  const loggeduSER = localStorage.getItem('id')
+  
+  const handleProfileNav = (userId)=>{
+    if(!userId) return;
+    if(userId){
+      navigate(`/profile/${userId}`)
+    
+    }
+  }
   const getPosts = async () => {
     const token = localStorage.getItem("token");
 
     try {
+      setIsLoading(true)
       const response = await api.get("/post", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -25,26 +37,54 @@ function Post() {
       });
 
       setData(response.data.posts);
-      console.log(response.data )
+      console.log(response.data);
+      setIsLoading(false)
     } catch (error) {
+      if(error.response?.status===401){
+        localStorage.removeItem('token')
+        navigate('/login')
+      }
       console.log(error);
+    }finally{
+      setIsLoading(false)
     }
   };
-   useEffect(() => {
-
+  useEffect(() => {
     getPosts();
   }, []);
   const handleCommentSubmit = async (postId) => {
+    if(!mycomment.trim()) return
     const token = localStorage.getItem("token");
-    const response = await api.post(
+    setIsCommentLoading(prev => ({ ...prev, [postId]: true }))
+   try {
+     const response = await api.post(
       `/comments/${postId}/comment`,
       { text: mycomment },
       {
         headers: { Authorization: `Bearer ${token}` },
       },
     );
+      const updatedPost = response.data.post
+
     console.log(response, "comment response===>>");
+     setData(prev =>
+      prev.map(post =>
+        post._id === postId ? {
+              ...updatedPost,
+              
+              isLiked: post.isLiked,
+              likesCount: post.likesCount,
+            } : post
+      )
+    );
+    setMycomment('')
     // getPosts()
+   } catch (error) {
+    console.log("error",error.message)
+   }finally{
+
+      setIsCommentLoading(prev => ({ ...prev, [postId]: false }));
+   }
   };
   const toggleComments = (postId) => {
     setShowComments((prev) => ({
@@ -52,50 +92,45 @@ function Post() {
       [postId]: !prev[postId],
     }));
   };
-const handleLikeBtnn = async (postId) => {
-  
- 
-  setData((prev) =>
-    prev.map((post) =>
-      post._id === postId
-  ? {
-    ...post,
-    isLiked: !post.isLiked,
-    likesCount: post.isLiked
-    ? post.likesCount - 1
-    : post.likesCount + 1,
-  }
-  : post
-)
-);
-
-try {
-    const token = localStorage.getItem("token");
-   const res = await api.get(`/likes/${postId}/like`, {
-  headers: { Authorization: `Bearer ${token}` },
-}
-    );
-
-    const { liked, count } = res.data;
-
-    // Sync with backend response
+  const handleLikeBtnn = async (postId) => {
     setData((prev) =>
       prev.map((post) =>
         post._id === postId
-          ? { ...post, isLiked: liked, likesCount: count }
-          : post
-      )
+          ? {
+              ...post,
+              isLiked: !post.isLiked,
+              likesCount: post.isLiked
+                ? post.likesCount - 1
+                : post.likesCount + 1,
+            }
+          : post,
+      ),
     );
-  } catch (err) {
-    console.error(err);
-    getPosts(); // fallback in case of error
-  }
-};
 
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.get(`/likes/${postId}/like`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-// const {count,liked } =response.data?.success
-// console.log(count,liked)
- 
+      const { liked, count } = res.data;
+
+      // Sync with backend response
+      setData((prev) =>
+        prev.map((post) =>
+          post._id === postId
+            ? { ...post, isLiked: liked, likesCount: count }
+            : post,
+        ),
+      );
+    } catch (err) {
+      console.error(err);
+      getPosts(); // fallback in case of error
+    }
+  };
+
+  // const {count,liked } =response.data?.success
+  // console.log(count,liked)
 
   return (
     <div
@@ -106,7 +141,8 @@ try {
       }}
     >
       <div style={{ maxWidth: "680px", margin: "0 auto" }}>
-        {data.map((d) => (
+        {isloading? <Loader/> :
+        [...data].reverse().map((d) => (
           <div
             key={d._id}
             style={{
@@ -120,7 +156,15 @@ try {
             {/* Post Header */}
             <div style={{ padding: "12px 16px" }}>
               <div
-                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  cursor: "pointer",
+                }}
+                // onClick={handleNavigateProfile}
+                  onClick={() => handleProfileNav(d.userId?._id)}
+
               >
                 {d.userId?.profileImage ? (
                   <img
@@ -139,7 +183,7 @@ try {
                       fontSize: "18px",
                     }}
                   >
-                    {d.userId?.userName.charAt(0).toUpperCase()}
+                    {d.userId.userName?.charAt(0)?.toUpperCase()|| "U"}
                   </Avatar>
                 )}
                 <div style={{ flex: 1 }}>
@@ -195,7 +239,7 @@ try {
               }}
             >
               <span style={{ fontSize: "15px", color: "#65676b" }}>
-                  {d.likesCount} {d.likesCount === 1 ? "like" : "likes"}
+                {d.likesCount} {d.likesCount === 1 ? "like" : "likes"}
                 {/* {d.likes.length} {d.likes.length === 1 ?"like":"likes"} */}
               </span>
               {d.comments.length >= 0 && (
@@ -222,7 +266,7 @@ try {
               }}
             >
               <button
-              onClick={()=>handleLikeBtnn(d._id)}
+                onClick={() => handleLikeBtnn(d._id)}
                 style={{
                   flex: 1,
                   padding: "8px",
@@ -239,7 +283,12 @@ try {
                   gap: "6px",
                 }}
               >
-                <LikeOutlined style={{ fontSize: "18px" ,    color: d.isLiked ? "blue" : "#65676b"}} />
+                <LikeOutlined
+                  style={{
+                    fontSize: "18px",
+                    color: d.isLiked ? "blue" : "#65676b",
+                  }}
+                />
                 Like
               </button>
               <button
@@ -331,7 +380,7 @@ try {
                     handleCommentSubmit(d._id);
                     setMycomment(""); // Clear input after clicking
                   }}
-                  disabled={!mycomment.trim()}
+                  disabled={isCommentLoading[d._id] || !mycomment.trim()}
                   style={{
                     border: "none",
                     background: "transparent",
@@ -341,7 +390,7 @@ try {
                     padding: "0 8px",
                   }}
                 >
-                  Post
+                 {isCommentLoading[d._id] ? "Posting" :"post"}
                 </button>
               </div>
             </div>
@@ -349,13 +398,16 @@ try {
             {/* Comments Section */}
             {showComments[d._id] && d.comments.length > 0 && (
               <div style={{ padding: "12px 16px" }}>
-                {d.comments.map((c) => (
+                {/* {d.comments.map((c) => ( */}
+                {[...d.comments].reverse().map((c) => (
                   <div
+                  onClick={() => handleProfileNav(c.userId?._id)}
                     key={c._id}
                     style={{
                       display: "flex",
                       gap: "8px",
                       marginBottom: "12px",
+                     
                     }}
                   >
                     {c.userId?.profileImage ? (
@@ -364,7 +416,7 @@ try {
                         alt="comment-user"
                         height={32}
                         width={32}
-                        style={{ borderRadius: "50%", objectFit: "cover" }}
+                        style={{ borderRadius: "50%", objectFit: "cover" , cursor:"pointer"}}
                       />
                     ) : (
                       <Avatar
@@ -373,6 +425,7 @@ try {
                           backgroundColor: "#e4e6eb",
                           color: "#65676b",
                           fontSize: "14px",
+                           cursor:"pointer"
                         }}
                       >
                         {c.userId?.userName?.charAt(0).toUpperCase() || "A"}

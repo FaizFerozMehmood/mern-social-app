@@ -11,14 +11,16 @@ const navigate = useNavigate()
     
     try {
         const response =  await api.post("/create",values)
-        console.log(response.data)
+        console.log(response.data?.data?.userName)
+            localStorage.setItem('userName',response.data?.data?.userName)
+        
         notification.success({
             title: "Done",
             description:response.data?.message || "Registered...!y",
             placement:"topRight"
         })
         setTimeout(()=>{
-            navigate("/")
+            navigate("/login")
 
         },2000)
     } catch (error) {

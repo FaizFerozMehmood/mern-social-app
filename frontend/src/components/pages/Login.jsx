@@ -17,6 +17,7 @@ function Login() {
 try {
   setIsLoading(true)
     const response =  await api.post("/login",values)
+    localStorage.setItem("id",response.data?.id)
     console.log(response.data)
     localStorage.setItem("token",response?.data?.token)
     notification.success({
@@ -25,7 +26,7 @@ try {
       placement:"topRight"
     })
     setTimeout(()=>{
-   navigate('/posts')
+   navigate('/')
     },2000)
 } catch (error) {
    notification.error({
