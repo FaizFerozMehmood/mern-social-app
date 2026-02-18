@@ -23,6 +23,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
+  // .........
 );
 app.use(cors({
     origin:"*"
