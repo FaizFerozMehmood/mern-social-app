@@ -54,14 +54,12 @@ export const login = async (req, res) => {
         .status(400)
         .json({ message: "error generating user token..!" });
     }
-    return res
-      .status(201)
-      .json({
-        message: "user loggedIn..!",
-        email: user.email,
-        id: user._id,
-        token,
-      });
+    return res.status(201).json({
+      message: "user loggedIn..!",
+      email: user.email,
+      id: user._id,
+      token,
+    });
   } catch (error) {
     return res
       .status(500)
@@ -70,25 +68,25 @@ export const login = async (req, res) => {
 };
 
 export const updateUserInfo = async (req, res) => {
- try {
-   const {id} = req.params;
-   console.log(id)
-  const {profileImage }= req.body;
-  if (!profileImage) {
-    return res.status(404).json({ message: "profile image not found" });
-  }
-  const updated = await User.findByIdAndUpdate(
-    id,
-    {
-      profileImage,
-    },
-    { new: true },
-  );
-  if(!updated){
-    return res.status(404).json({message:"user not found..!"})
-  }
- return res.status(201).json({message:"profile Updated",data:updated})
- } catch (error) {
+  try {
+    const { id } = req.params;
+    console.log(id);
+    const { profileImage } = req.body;
+    if (!profileImage) {
+      return res.status(404).json({ message: "profile image not found" });
+    }
+    const updated = await User.findByIdAndUpdate(
+      id,
+      {
+        profileImage,
+      },
+      { new: true },
+    );
+    if (!updated) {
+      return res.status(404).json({ message: "user not found..!" });
+    }
+    return res.status(201).json({ message: "profile Updated", data: updated });
+  } catch (error) {
     console.log("error in your route", error.message);
     return res
       .status(500)
@@ -96,19 +94,49 @@ export const updateUserInfo = async (req, res) => {
   }
 };
 
-export const getUser = async(req,res)=>{
-try {
-  const {id} = req.params;
-  if(!id){
-    return res.status(404).json({message:"Id not found while getting user"})
-  }
-  const user = await User.findById(id).select('userName profileImage')
-  if(!user){
-    return res.status(404).json({message:"user not found against the id provided"})
-  }
-  return res.status(200).json({message:"user fetched successfully..!",user})
-} catch (error) {
- res.status(500)
+export const getUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res
+        .status(404)
+        .json({ message: "Id not found while getting user" });
+    }
+    const user = await User.findById(id).select(
+      "userName profileImage followers following ",
+    );
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "user not found against the id provided" });
+    }
+    return res
+      .status(200)
+      .json({ message: "user fetched successfully..!", user });
+  } catch (error) {
+    res
+      .status(500)
       .json({ message: "error getting user..!", error: error.message });
-}
-}
+  }
+};
+export const getUsers = async (req, res) => {
+  try {
+    const loggedInuserId = req.user.id;
+    console.log(loggedInuserId)
+    const users = await User.find().select("-password -__v").lean();
+    const userfollowStatus = users.map((user) => ({
+      ...user,
+      isFollowing: user.followers?.some((id)=> id.toString()===loggedInuserId)?? false,
+    }));
+    if (users.length===0) {
+      return res.status(404).json({ message: "users not found " });
+    }
+    return res
+      .status(200)
+      .json({ message: "Users fetched..!", data: userfollowStatus });
+  } catch (error) {
+    console
+      .log(error.message)
+      return res.status(500).json({ message: "error getting users..!", error: error.message });
+  }
+};
