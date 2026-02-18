@@ -20,14 +20,12 @@ app.use(
   cors({
     // origin: "http://localhost:5173",
     origin: "mern-social-app-pfjf.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    // methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
   // .........
 );
-app.use(cors({
-    origin:"*"
-}))
+app.options("*", cors());
 
 
 
