@@ -19,7 +19,7 @@ app.use(express.json())
 app.use(
   cors({
     // origin: "http://localhost:5173",
-    origin: "mern-social-app-pfjf.vercel.app",
+    origin: "https://mern-social-app-pfjf.vercel.app",
     // methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
