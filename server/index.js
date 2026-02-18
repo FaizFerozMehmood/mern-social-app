@@ -16,17 +16,18 @@ connectdataBase()
 
 const app = express()
 app.use(express.json())
-app.use(cors({
-    origin:"http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"]
-}))
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  }),
+);
 app.use(cors({
     origin:"*"
 }))
 
-// app.use("/",(req,res)=>{
-//     res.send("Hello, its working")
-// })
+
 
 app.use("/",userRoutes)
 app.use("/post",postRoutes)
