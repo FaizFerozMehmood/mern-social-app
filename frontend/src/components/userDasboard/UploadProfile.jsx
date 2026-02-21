@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Avatar } from "antd";
+import { Avatar, Button } from "antd";
 import api from "../../api/axios";
 
 import {
@@ -194,34 +194,101 @@ function UploadProfile() {
           {/* ===== OWNER PROFILE ===== */}
 
           <div style={{ textAlign: "center", marginTop: 20 }}>
-            <h6><strong>{getuser.userName}{","}</strong> Welcome to your profile!</h6>
+            <h6>
+              <strong>
+                {getuser.userName}
+                {","}
+              </strong>{" "}
+              Welcome to your profile!
+            </h6>
           </div>
 
           {/* Avatar */}
           <div
-            style={{ display: "flex", justifyContent: "center", marginTop: 20 }}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: 20,
+            }}
           >
             {getuser?.profileImage ? (
-              <img
-                src={getuser.profileImage}
-                alt="profile"
-                height={100}
-                width={100}
-                onClick={handleAvatarClick}
+              <div
                 style={{
-                  borderRadius: "50%",
-                  objectFit: "cover",
+                  position: "relative",
+                  width: 100,
+                  height: 100,
                   cursor: "pointer",
                 }}
-              />
-            ) : (
-              <Avatar
-                size={100}
                 onClick={handleAvatarClick}
-                style={{ backgroundColor: "#87d068", cursor: "pointer" }}
               >
-                {getuser?.userName?.charAt(0).toUpperCase() || "U"}
-              </Avatar>
+                <img
+                  src={getuser.profileImage}
+                  alt="profile"
+                  height={100}
+                  width={100}
+                  style={{
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    transform: "translate(25%, 25%)",
+                    backgroundColor: "#c522ba",
+                    color: "#fff",
+                    fontSize: "10px",
+                    padding: "2px 6px",
+                    borderRadius: "10px",
+                    fontWeight: "500",
+                  }}
+                >
+                  Update profile
+                </span>
+              </div>
+            ) : (
+              <div
+                style={{
+                  position: "relative",
+                  width: 100,
+                  height: 100,
+                  cursor: "pointer",
+                }}
+                onClick={handleAvatarClick}
+              >
+                <Avatar
+                  size={100}
+                  style={{
+                    backgroundColor: "#87d068",
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
+                  {getuser?.userName?.charAt(0).toUpperCase() || "U"}
+                </Avatar>
+
+                <span
+                  style={{
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    transform: "translate(25%, 25%)",
+                    backgroundColor: "#22c55e",
+                    color: "#fff",
+                    fontSize: "10px",
+                    padding: "2px 6px",
+                    borderRadius: "10px",
+                    fontWeight: "500",
+                  }}
+                >
+                  Update profile
+                </span>
+              </div>
             )}
           </div>
 
@@ -236,10 +303,10 @@ function UploadProfile() {
           </div>
 
           {/* Upload Button */}
-          <div style={{ textAlign: "center", marginTop: 20 }}>
-            <button onClick={handleProfile} disabled={!file}>
+          <div style={{ textAlign: "center", marginTop: 20, marginBottom: 20 }}>
+            <Button onClick={handleProfile} disabled={!file}>
               {isLoading ? "Uploading..." : "Upload Profile"}
-            </button>
+            </Button>
           </div>
 
           <input
@@ -252,8 +319,6 @@ function UploadProfile() {
         </>
       ) : (
         <>
-          
-
           <div style={{ textAlign: "center", marginTop: 40 }}>
             <h4>{getuser?.userName}'s Profile</h4>
 
@@ -269,14 +334,12 @@ function UploadProfile() {
               }}
             />
 
-            
             <div style={{ marginTop: 16 }}>
               <button onClick={handleFollow}>
                 {isFollowing ? "Unfollow" : "Follow"}
               </button>
             </div>
 
-            
             <div style={{ marginTop: 12 }}>
               <p>
                 <strong>{followersCount}</strong> Followers
@@ -310,7 +373,6 @@ function UploadProfile() {
                   overflow: "hidden",
                 }}
               >
-                
                 <div style={{ padding: "12px 16px" }}>
                   <div
                     style={{
@@ -358,7 +420,6 @@ function UploadProfile() {
                   </div>
                 </div>
 
-               
                 <div
                   style={{
                     padding: "0 16px 12px",
@@ -370,7 +431,6 @@ function UploadProfile() {
                   {d.postMessage}
                 </div>
 
-               
                 {d.selectedFile && (
                   <img
                     src={d.selectedFile}
@@ -412,7 +472,6 @@ function UploadProfile() {
                   )}
                 </div>
 
-                
                 <div
                   style={{
                     display: "flex",
@@ -493,7 +552,6 @@ function UploadProfile() {
                   </button>
                 </div>
 
-               
                 <div
                   style={{
                     padding: "8px 16px",
@@ -550,7 +608,6 @@ function UploadProfile() {
                   </div>
                 </div>
 
-               
                 {showComments[d._id] && d.comments.length > 0 && (
                   <div style={{ padding: "12px 16px" }}>
                     {[...d.comments].reverse().map((c) => (
