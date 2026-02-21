@@ -59,13 +59,13 @@ function Navbar({ getPosts }) {
             cursor: "pointer",
           }}
         >
-          <li onClick={() => setOpen(true)}>
-            <UploadOutlined style={{ fontSize: 30, cursor: "pointer" }} />
-          </li>
           <li>
             <NavLink to={"/"} style={navStyle}>
-              <HomeOutlined style={{ fontSize: "30px" }} />
+              <HomeOutlined style={{ fontSize: "25px" }} />
             </NavLink>
+          </li>
+          <li onClick={() => setOpen(true)}>
+            <UploadOutlined style={{ fontSize: 25, cursor: "pointer" ,paddingBottom:"6px"}} />
           </li>
           <li>
             <NavLink to={`/profile/${userId}`} style={navStyle}>
@@ -79,14 +79,14 @@ function Navbar({ getPosts }) {
                   }}
                 ></Avatar>
               ) : (
-                <UserOutlined style={{ fontSize: "30px" }} />
+                <UserOutlined style={{ fontSize: "25px" }} />
               )}
             </NavLink>
           </li>
 
           <li>
             <NavLink to={"/users"} style={navStyle}>
-              <TeamOutlined style={{ fontSize: "30px" }} />
+              <TeamOutlined style={{ fontSize: "25px" }} />
             </NavLink>
           </li>
 
@@ -99,7 +99,7 @@ function Navbar({ getPosts }) {
               cancelText="No"
             >
               <LogoutOutlined
-                style={{ color: "red", fontSize: "30px", cursor: "pointer" }}
+                style={{ color: "red", fontSize: "25px", cursor: "pointer" }}
               />
             </Popconfirm>
           </li>

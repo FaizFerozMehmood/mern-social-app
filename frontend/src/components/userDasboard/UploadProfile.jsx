@@ -194,7 +194,7 @@ function UploadProfile() {
           {/* ===== OWNER PROFILE ===== */}
 
           <div style={{ textAlign: "center", marginTop: 20 }}>
-            <h6>Welcome to your profile {getuser?.userName}</h6>
+            <h6><strong>{getuser.userName}{","}</strong> Welcome to your profile!</h6>
           </div>
 
           {/* Avatar */}
@@ -299,7 +299,7 @@ function UploadProfile() {
       >
         <div style={{ maxWidth: "680px", margin: "0 auto" }}>
           {data.length > 0 ? (
-            data.map((d) => (
+            [...data].reverse().map((d) => (
               <div
                 key={d._id}
                 style={{

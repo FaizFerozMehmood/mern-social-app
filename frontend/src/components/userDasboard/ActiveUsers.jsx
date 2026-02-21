@@ -4,7 +4,7 @@ import { Avatar, Button } from "antd";
 import { AntDesignOutlined, UserOutlined } from "@ant-design/icons";
 
 import { useNavigate, useParams } from "react-router-dom";
-function ActiveUsers() {
+function ActiveUsers() { 
   const loggedIn = localStorage.getItem("id");
   const [userdata, setUserData] = useState([]);
   const navigate = useNavigate();
