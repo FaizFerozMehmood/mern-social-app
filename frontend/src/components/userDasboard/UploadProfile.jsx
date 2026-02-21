@@ -15,6 +15,7 @@ function UploadProfile() {
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
   const [isFollowing, setIsFollowing] = useState(false);
+  const loggedInUserId = localStorage.getItem('id')
   const handleProfileNav = (userId) => {
     if (!userId) return;
     if (userId) {
@@ -120,7 +121,11 @@ function UploadProfile() {
   const getUser = async () => {
     const response = await api.get(`/user/${userId}`);
  
-    console.log(response.data.user.profileImage);
+    console.log("imggggggggg",response.data.user.profileImage);
+    if(response.data?.user?._id===loggedInUserId){
+      localStorage.setItem("profileImage",response.data.user.profileImage);
+
+    }
     const user = response.data?.user;
     console.log("user", response);
     console.log("followiers", user?.followers);

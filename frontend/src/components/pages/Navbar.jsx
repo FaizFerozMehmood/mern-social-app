@@ -47,7 +47,16 @@ function Navbar({ getPosts }) {
           padding: "10px 20px",
         }}
       >
-        <p style={{ fontWeight: "bold" }}>Facebook</p>
+        <p
+          style={{
+            fontWeight: "bold",
+            fontFamily: "ui-rounded",
+            color: "rgba(202, 120, 27, 0.67)",
+            fontSize: "20px",
+          }}
+        >
+          S-Media
+        </p>
 
         <ul
           style={{
@@ -65,7 +74,15 @@ function Navbar({ getPosts }) {
             </NavLink>
           </li>
           <li onClick={() => setOpen(true)}>
-            <UploadOutlined style={{ fontSize: 25, cursor: "pointer" ,paddingBottom:"6px"}} />
+            <UploadOutlined
+              style={{ fontSize: 25, cursor: "pointer", paddingBottom: "6px" }}
+            />
+          </li>
+
+          <li>
+            <NavLink to={"/users"} style={navStyle}>
+              <TeamOutlined style={{ fontSize: "25px" }} />
+            </NavLink>
           </li>
           <li>
             <NavLink to={`/profile/${userId}`} style={navStyle}>
@@ -81,12 +98,6 @@ function Navbar({ getPosts }) {
               ) : (
                 <UserOutlined style={{ fontSize: "25px" }} />
               )}
-            </NavLink>
-          </li>
-
-          <li>
-            <NavLink to={"/users"} style={navStyle}>
-              <TeamOutlined style={{ fontSize: "25px" }} />
             </NavLink>
           </li>
 
