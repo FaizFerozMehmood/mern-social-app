@@ -1,29 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   UserOutlined,
   HomeOutlined,
   TeamOutlined,
   LogoutOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
-import { Avatar } from "antd";
+import { Avatar, Modal, Upload } from "antd";
+import { Button, Popconfirm } from "antd";
+import FileUploader from "../userDasboard/Upload";
 
-function Navbar() {
-  const userId = localStorage.getItem("id");
+function Navbar({ getPosts }) {
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const handleLogOut = () => {
+    (localStorage.clear(), navigate("/login"));
+  };
+  const userId = localStorage.getItem("id");
   const location = useLocation();
   if (location.pathname === "/login" || location.pathname === "/register") {
     return null;
   }
-const navStyle = ({ isActive }) => ({
-  color: isActive ? "#1877f2" : "#555",
-  borderBottom: isActive ? "3px solid #1877f2" : "none",
-  paddingBottom: "6px",
-});
-  const handleLogOut = () => {
-    localStorage.clear();
-    navigate("/login");
-  };
+  const navStyle = ({ isActive }) => ({
+    color: isActive ? "#1877f2" : "#555",
+    borderBottom: isActive ? "3px solid #1877f2" : "none",
+    paddingBottom: "6px",
+  });
+
   const profileImage = localStorage.getItem("profileImage");
   return (
     <div
@@ -55,37 +59,61 @@ const navStyle = ({ isActive }) => ({
             cursor: "pointer",
           }}
         >
+          <li onClick={() => setOpen(true)}>
+            <UploadOutlined style={{ fontSize: 30, cursor: "pointer" }} />
+          </li>
           <li>
             <NavLink to={"/"} style={navStyle}>
               <HomeOutlined style={{ fontSize: "30px" }} />
             </NavLink>
           </li>
-          <NavLink to={`/profile/${userId}`} style={navStyle}>
-            {profileImage ? (
-              <Avatar
-                src={profileImage || undefined}
-                // size={30}
-                style={{
-                  backgroundColor: "#1877f2",
-                  border: "1px solid blue",
-                }}
-              ></Avatar>
-            ) : (
-              <UserOutlined style={{ fontSize: "30px" }} />
-            )}
-          </NavLink>
+          <li>
+            <NavLink to={`/profile/${userId}`} style={navStyle}>
+              {profileImage ? (
+                <Avatar
+                  src={profileImage || undefined}
+                  // size={30}
+                  style={{
+                    backgroundColor: "#1877f2",
+                    border: "1px solid blue",
+                  }}
+                ></Avatar>
+              ) : (
+                <UserOutlined style={{ fontSize: "30px" }} />
+              )}
+            </NavLink>
+          </li>
 
           <li>
             <NavLink to={"/users"} style={navStyle}>
               <TeamOutlined style={{ fontSize: "30px" }} />
             </NavLink>
           </li>
-          <li onClick={handleLogOut}>
-            {" "}
-            <LogoutOutlined style={{ color: "red", fontSize: "30px" }} />
+
+          <li>
+            <Popconfirm
+              title="Logout"
+              description="Are you sure you want to logout?"
+              onConfirm={handleLogOut}
+              okText="Yes"
+              cancelText="No"
+            >
+              <LogoutOutlined
+                style={{ color: "red", fontSize: "30px", cursor: "pointer" }}
+              />
+            </Popconfirm>
           </li>
         </ul>
       </div>
+      <Modal
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+        width={650}
+        destroyOnClose
+      >
+        <FileUploader getPosts={getPosts} />
+      </Modal>
     </div>
   );
 }
