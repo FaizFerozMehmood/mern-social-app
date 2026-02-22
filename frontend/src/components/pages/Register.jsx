@@ -106,7 +106,7 @@ const navigate = useNavigate()
         display:'flex',
         justifyContent:"center"
       }}>
-        <p style={{marginTop:"20px"}}>Already have an account? <Link to={'/register'}>Login Now!</Link></p>
+        <p style={{marginTop:"20px"}}>Already have an account? <Link to={'/login'}>Login Now!</Link></p>
 
       </div>
     </Form.Item>
