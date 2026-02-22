@@ -7,6 +7,7 @@ import {
   CommentOutlined,
   ShareAltOutlined,
 } from "@ant-design/icons";
+import { message } from "antd";
 import Loader from "./Loader";
 import Upload from "./userDasboard/Upload.jsx";
 function Post() {
@@ -85,6 +86,9 @@ function Post() {
             } : post
       )
     );
+    // alert('comment added')
+    message.info("Comment Added..!")
+
     setMycomment('')
     // getPosts()
    } catch (error) {
