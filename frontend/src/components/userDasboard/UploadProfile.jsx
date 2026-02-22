@@ -535,7 +535,7 @@ function UploadProfile() {
                     Comment
                     {/* <button>Comment</button> */}
                   </button>
-                  <button
+                  {/* <button
                     style={{
                       flex: 1,
                       padding: "8px",
@@ -554,7 +554,7 @@ function UploadProfile() {
                   >
                     <ShareAltOutlined style={{ fontSize: "18px" }} />
                     Share
-                  </button>
+                  </button> */}
                 </div>
 
                 <div

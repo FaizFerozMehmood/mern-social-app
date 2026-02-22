@@ -332,7 +332,7 @@ function Post() {
                     Comment
                     {/* <button>Comment</button> */}
                   </button>
-                  <button
+                  {/* <button
                     style={{
                       flex: 1,
                       padding: "8px",
@@ -351,7 +351,7 @@ function Post() {
                   >
                     <ShareAltOutlined style={{ fontSize: "18px" }} />
                     Share
-                  </button>
+                  </button> */}
                 </div>
 
                 {/* Comment Input Section */}
