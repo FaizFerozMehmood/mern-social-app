@@ -4,10 +4,33 @@ import { Avatar, Button } from "antd";
 import { AntDesignOutlined, UserOutlined } from "@ant-design/icons";
 
 import { useNavigate, useParams } from "react-router-dom";
-function ActiveUsers() { 
+function ActiveUsers() {
   const loggedIn = localStorage.getItem("id");
   const [userdata, setUserData] = useState([]);
   const navigate = useNavigate();
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    if (!userName.trim()) {
+      getUSERS();
+      return;
+    }
+    const timer = setTimeout(() => {
+      searchUsers();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [userName]);
+  const searchUsers = async () => {
+    try {
+      const response = await api.get(
+        `/search?userName=${encodeURIComponent(userName)}`,
+      );
+      console.log("response", response.data?.data);
+      setUserData(response.data?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const token = localStorage.getItem("token");
   const getUSERS = async () => {
@@ -51,17 +74,43 @@ function ActiveUsers() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        flexWrap: "wrap",
-        gap: "40px",
-        marginTop: "20px",
-      }}
-    >
-      {userdata.length > 0
-        ? [...userdata]
+    <>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "20px",
+        }}
+      >
+        <input
+          style={{
+            height: "38px",
+            width: "300px",
+            padding: "0 12px",
+            border: "2px solid blue",
+            borderRadius:"6px",
+            outline:"none",
+            fontSize:"14px"
+          }}
+          value={userName}
+          type="text"
+          placeholder="Search user"
+          onChange={(e) => setUserName(e.target.value)}
+        />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: "40px",
+          marginTop: "20px",
+        }}
+      >
+        {userdata.length > 0 ? (
+          [...userdata]
             .reverse()
             .filter((user) => user._id !== loggedIn)
             .map((user) => (
@@ -167,8 +216,13 @@ function ActiveUsers() {
                 </div>
               </div>
             ))
-        : ""}
-    </div>
+        ) : (
+          <div>
+            <h4 style={{ color: "red" }}>Nothing to see, Boss!</h4>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
