@@ -122,21 +122,44 @@ export const getUser = async (req, res) => {
 export const getUsers = async (req, res) => {
   try {
     const loggedInuserId = req.user.id;
-    console.log(loggedInuserId)
+    console.log(loggedInuserId);
     const users = await User.find().select("-password -__v").lean();
     const userfollowStatus = users.map((user) => ({
       ...user,
-      isFollowing: user.followers?.some((id)=> id.toString()===loggedInuserId)?? false,
+      isFollowing:
+        user.followers?.some((id) => id.toString() === loggedInuserId) ?? false,
     }));
-    if (users.length===0) {
+    if (users.length === 0) {
       return res.status(404).json({ message: "users not found " });
     }
     return res
       .status(200)
       .json({ message: "Users fetched..!", data: userfollowStatus });
   } catch (error) {
-    console
-      .log(error.message)
-      return res.status(500).json({ message: "error getting users..!", error: error.message });
+    console.log(error.message);
+    return res
+      .status(500)
+      .json({ message: "error getting users..!", error: error.message });
+  }
+};
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { userName } = req.query;
+    if (!userName) {
+      return res.status(400).json({ message: "query is required..!" });
+    }
+    const users = await User.find({
+      userName: { $regex: userName, $options: "i" },
+    });
+    res
+      .status(200)
+      .json({
+        message: users.length ? "Users fetched..!" : "No user found..!",
+        data: users,
+      });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ message: "error searching users" });
   }
 };

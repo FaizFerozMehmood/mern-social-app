@@ -18,14 +18,14 @@ const app = express()
 app.use(express.json())
 app.use(
   cors({
-    // origin: "http://localhost:5173",
-    origin: "https://mern-social-app-pfjf.vercel.app",
+    // origin: "https://mern-social-app-pfjf.vercel.app",
+    origin: "http://localhost:5173",
     // methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
   // .........
 );
-app.options("*", cors());
+http: app.options("*", cors());
 
 
 
