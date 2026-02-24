@@ -151,13 +151,15 @@ function ActiveUsers() {
                         Following
                       </span>
                     </p>
-                    <p style={{ fontSize: "14px", color: "#65676b" }}>
-                      {" "}
+                    <p style={{ fontSize: "14px", color: "#092f7a" }}>
                       Joined{" "}
                       {user.createdAt
-                        ? new Date(user.createdAt).toLocaleDateString("en-US", {
+                        ? new Date(user.createdAt).toLocaleString("en-GB", {
+                            day: "2-digit",
                             month: "short",
                             year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
                           })
                         : "—"}
                     </p>
