@@ -7,6 +7,7 @@ import {
   LikeOutlined,
   CommentOutlined,
   ShareAltOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import Loader from "../Loader";
@@ -498,7 +499,7 @@ function UploadProfile() {
                                   }}
                                 />
                               ) : (
-                                <UserOutlined />
+                                <UserOutlined/>
                               )}
                               <p>{data.userName}</p>
                             </div>
