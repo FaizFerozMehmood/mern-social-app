@@ -13,6 +13,7 @@ import FileUploader from "../userDasboard/Upload";
 // import s.png from "../../../public/s.png"
 
 function Navbar({ getPosts }) {
+  
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const handleLogOut = () => {

@@ -1,38 +1,40 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/axios";
-import { Avatar } from "antd";
+import { Avatar, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
   LikeOutlined,
   CommentOutlined,
   ShareAltOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { message } from "antd";
 import Loader from "./Loader";
 import Upload from "./userDasboard/Upload.jsx";
 function Post() {
+  const [open, setOpen] = useState(false);
+  const [selectedLikes, setSelectedLikes] = useState([]);
   const [data, setData] = useState([]);
   const [showComments, setShowComments] = useState({});
   const [mycomment, setMycomment] = useState("");
-  const [isloading, setIsLoading] = useState(false)
-  const [isCommentLoading, setIsCommentLoading] = useState({})
-  const [isError, setIsError] = useState(false)
+  const [isloading, setIsLoading] = useState(false);
+  const [isCommentLoading, setIsCommentLoading] = useState({});
+  const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
-  const loggeduSER = localStorage.getItem('id')
-  
-  const handleProfileNav = (userId)=>{
-    if(!userId) return;
-    if(userId){
-      navigate(`/profile/${userId}`)
-    
+  const loggeduSER = localStorage.getItem("id");
+
+  const handleProfileNav = (userId) => {
+    if (!userId) return;
+    if (userId) {
+      navigate(`/profile/${userId}`);
     }
-  }
- const getPosts = async () => {
+  };
+  const getPosts = async () => {
     const token = localStorage.getItem("token");
 
     try {
-      setIsLoading(true)
-      setIsError(false)
+      setIsLoading(true);
+      setIsError(false);
       const response = await api.get("/post", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -40,63 +42,62 @@ function Post() {
       });
 
       setData(response.data.posts);
-      console.log(response.data);
-      setIsLoading(false)
+      console.log("Posts==>", response.data);
+      setIsLoading(false);
     } catch (error) {
-      if(error.response?.status===401){
-        localStorage.removeItem('token')
-        navigate('/login')
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
         return;
-      }
-      else{
-        setIsError(true)
-      // setIsLoading(false);
-
+      } else {
+        setIsError(true);
+        // setIsLoading(false);
       }
       console.log(error);
-    }finally{
-      setIsLoading(false)
+    } finally {
+      setIsLoading(false);
     }
   };
   useEffect(() => {
     getPosts();
   }, []);
   const handleCommentSubmit = async (postId) => {
-    if(!mycomment.trim()) return
+    if (!mycomment.trim()) return;
     const token = localStorage.getItem("token");
-    setIsCommentLoading(prev => ({ ...prev, [postId]: true }))
-   try {
-     const response = await api.post(
-      `/comments/${postId}/comment`,
-      { text: mycomment },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
-      const updatedPost = response.data.post
+    setIsCommentLoading((prev) => ({ ...prev, [postId]: true }));
+    try {
+      const response = await api.post(
+        `/comments/${postId}/comment`,
+        { text: mycomment },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      const updatedPost = response.data.post;
 
-    console.log(response, "comment response===>>");
-     setData(prev =>
-      prev.map(post =>
-        post._id === postId ? {
-              ...updatedPost,
-              
-              isLiked: post.isLiked,
-              likesCount: post.likesCount,
-            } : post
-      )
-    );
-    // alert('comment added')
-    message.info("Comment Added..!")
+      console.log(response, "comment response===>>");
+      setData((prev) =>
+        prev.map((post) =>
+          post._id === postId
+            ? {
+                ...updatedPost,
 
-    setMycomment('')
-    // getPosts()
-   } catch (error) {
-    console.log("error",error.message)
-   }finally{
+                isLiked: post.isLiked,
+                likesCount: post.likesCount,
+              }
+            : post,
+        ),
+      );
+      // alert('comment added')
+      message.info("Comment Added..!");
 
-      setIsCommentLoading(prev => ({ ...prev, [postId]: false }));
-   }
+      setMycomment("");
+      // getPosts()
+    } catch (error) {
+      console.log("error", error.message);
+    } finally {
+      setIsCommentLoading((prev) => ({ ...prev, [postId]: false }));
+    }
   };
   const toggleComments = (postId) => {
     setShowComments((prev) => ({
@@ -104,49 +105,39 @@ function Post() {
       [postId]: !prev[postId],
     }));
   };
-  const handleLikeBtnn = async (postId) => {
-    setData((prev) =>
-      prev.map((post) =>
-        post._id === postId
-          ? {
-              ...post,
-              isLiked: !post.isLiked,
-              likesCount: post.isLiked
-                ? post.likesCount - 1
-                : post.likesCount + 1,
-            }
-          : post,
-      ),
-    );
+ const handleLikeBtnn = async (postId) => {
+   const loggedUser = localStorage.getItem("id");
 
-    try {
-      const token = localStorage.getItem("token");
-      const res = await api.get(`/likes/${postId}/like`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+ 
+   setData((prev) =>
+     prev.map((post) => {
+       if (post._id !== postId) return post;
 
-      const { liked, count } = res.data;
+       const alreadyLiked = post.likes.some((u) => u._id === loggedUser);
 
-      // Sync with backend response
-      setData((prev) =>
-        prev.map((post) =>
-          post._id === postId
-            ? { ...post, isLiked: liked, likesCount: count }
-            : post,
-        ),
-      );
-    } catch (err) {
-      console.error(err);
-      getPosts();
-    }
-  };
+       return {
+         ...post,
+         likes: alreadyLiked
+           ? post.likes.filter((u) => u._id !== loggedUser)
+           : [...post.likes, { _id: loggedUser }],
+         likesCount: alreadyLiked ? post.likesCount - 1 : post.likesCount + 1,
+       };
+     }),
+   );
 
-
+   try {
+     const token = localStorage.getItem("token");
+     await api.get(`/likes/${postId}/like`, {
+       headers: { Authorization: `Bearer ${token}` },
+     });
+   } catch (err) {
+     console.error(err);
+     getPosts(); // rollback
+   }
+ };
 
   return (
     <>
-      
-
       <div
         style={{
           backgroundColor: "#f0f2f5",
@@ -163,7 +154,10 @@ function Post() {
           )}
           {!isloading &&
             !isError &&
-            [...data].reverse().map((d) => (
+            [...data].reverse().map((d) => {
+              const isPostLiked = d.likes?.some((u) => u._id === loggeduSER);
+             
+            return (
               <div
                 key={d._id}
                 style={{
@@ -258,10 +252,54 @@ function Post() {
                     alignItems: "center",
                   }}
                 >
-                  <span style={{ fontSize: "15px", color: "#65676b" }}>
-                    {d.likesCount} {d.likesCount === 1 ? "like" : "likes"}
-                    {/* {d.likes.length} {d.likes.length === 1 ?"like":"likes"} */}
-                  </span>
+                  <div>
+                    <span
+                      onClick={() => {
+                        setSelectedLikes(d.likes);
+                        setOpen(true);
+                      }}
+                      style={{
+                        fontSize: "15px",
+                        color: "#65676b",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {d.likesCount} {d.likesCount === 1 ? "like" : "likes"}
+                    </span>
+                    <Modal
+                      open={open}
+                      onCancel={() => setOpen(false)}
+                      footer={null}
+                      width={650}
+                      destroyOnClose
+                      title="Liked by"
+                    >
+                      {selectedLikes.length === 0 ? (
+                        <p>NoOne</p>
+                      ) : (
+                        selectedLikes.map((data) => (
+                          <div key={data._id}>
+                            {data.profileImage ? (
+                              <img
+                                src={data.profileImage}
+                                alt=""
+                                height={20}
+                                style={{
+                                  width: "auto",
+                                  objectFit: "contain",
+                                  borderRadius: "25px",
+                                }}
+                              />
+                            ) : (
+                              <UserOutlined />
+                            )}
+                            <p>{data.userName}</p>
+                          </div>
+                        ))
+                      )}
+                    </Modal>
+                  </div>
+
                   {d.comments.length >= 0 && (
                     <span
                       style={{
@@ -295,18 +333,19 @@ function Post() {
                       cursor: "pointer",
                       fontSize: "15px",
                       fontWeight: "600",
-                      color: d.isLiked ? "blue" : "#65676b",
+                      // color: d.isLiked ? "blue" : "#65676b",
+                      color: isPostLiked ? "blue" : "#65676b",
                       borderRadius: "4px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       gap: "6px",
                     }}
-                  >
+                  > 
                     <LikeOutlined
                       style={{
                         fontSize: "18px",
-                        color: d.isLiked ? "blue" : "#65676b",
+                        color: isPostLiked ? "blue" : "#65676b",
                       }}
                     />
                     Like
@@ -497,7 +536,11 @@ function Post() {
                   </div>
                 )}
               </div>
-            ))}
+            );
+            }
+            
+             
+            )}
         </div>
       </div>
     </>
