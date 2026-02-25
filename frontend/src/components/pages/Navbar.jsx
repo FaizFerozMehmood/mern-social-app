@@ -10,6 +10,7 @@ import {
 import { Avatar, Modal, Upload } from "antd";
 import { Button, Popconfirm } from "antd";
 import FileUploader from "../userDasboard/Upload";
+// import s.png from "../../../public/s.png"
 
 function Navbar({ getPosts }) {
   const [open, setOpen] = useState(false);
@@ -47,7 +48,7 @@ function Navbar({ getPosts }) {
           padding: "10px 20px",
         }}
       >
-        <p
+        {/* <p
           style={{
             fontWeight: "bold",
             fontFamily: "ui-rounded",
@@ -56,7 +57,13 @@ function Navbar({ getPosts }) {
           }}
         >
           S-Media
-        </p>
+        </p> */}
+        <img
+          src="/s.png"
+          alt=""
+          height={30}
+          style={{ width: "auto", objectFit: "contain" ,borderRadius:"25px"}}
+        />
 
         <ul
           style={{
