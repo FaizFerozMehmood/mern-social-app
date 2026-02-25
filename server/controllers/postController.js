@@ -24,7 +24,7 @@ export const getPosts = async (req, res) => {
     const posts = await Post.find()
       .populate("userId", "userName profileImage")
       .populate("comments.userId", "userName profileImage")
-    //   .populate("likes", "userName profileImage")
+      .populate("likes", "userName profileImage")
       .lean();
     const finalPosts = posts.map((post) => ({
       ...post,
@@ -37,29 +37,7 @@ export const getPosts = async (req, res) => {
   }
 };
 
-// export const getUserPost = async(req,res)=>{
-//   try {
-//     const {userId} = req.params;
-//     const posts = await Post.find({userId})
-//      .populate("userId", "userName profileImage")
-//       .populate("comments.userId", "userName profileImage")
-//       .lean()
-//     if(!posts){
-//       return res.status(404).json({message:"post not found"})
-//     }
-//     if(posts.length===0){
-//       return res.status(404).json({message:"No posts found"})
-//     }
-//      const finalPosts = posts.map((post) => ({
-//       ...post,
-//       likesCount: post.likes.length,
-//       isLiked: post.likes.some((id) => id.toString() === userId),
-//     }));
-//     return res.status(200).json({message:"Posts fetched",posts})
-//   } catch (error) {
-//      res.status(500).json({ message: error.message });
-//   }
-// }
+
 export const getUserPost = async (req, res) => {
   try {
     const { userId } = req.params;  
@@ -70,6 +48,8 @@ export const getUserPost = async (req, res) => {
     const posts = await Post.find({ userId })
       .populate("userId", "userName profileImage")
       .populate("comments.userId", "userName profileImage")
+      .populate("likes", "userName profileImage")
+
       .lean();
 
     if (!posts || posts.length === 0) {
