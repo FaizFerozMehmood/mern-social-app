@@ -1,6 +1,6 @@
 
 import React from 'react'
-import {Route,Routes} from "react-router-dom"
+import {Route,Routes, useLocation} from "react-router-dom"
 import Login from './components/pages/Login.jsx'
 import Register from './components/pages/Register.jsx'
 import Upload from './components/userDasboard/Upload.jsx'
@@ -16,9 +16,10 @@ import { useEffect } from 'react'
 function App() {
   const [token, setToken] = useState(null);
 // ........
+const location = useLocation()
   useEffect(() => {
     setToken(localStorage.getItem("token"));
-  }, []);
+  }, [location.pathname]);
   return (
     <>
       {token && <Navbar />}
