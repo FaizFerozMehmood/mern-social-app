@@ -77,7 +77,7 @@ function Register() {
             name="userName"
             rules={[{ required: true, message: "Please input user name!" }]}
           >
-            <Input />
+            <Input placeholder="Enter your Name" />
           </Form.Item>
           <Form.Item
             label="email"
@@ -87,7 +87,7 @@ function Register() {
               { type: "email", message: "Please enter a valid email!" },
             ]}
           >
-            <Input />
+            <Input placeholder="exp@gmail.com" />
           </Form.Item>
 
           <Form.Item
@@ -95,7 +95,7 @@ function Register() {
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password />
+            <Input.Password placeholder="exp123" />
           </Form.Item>
 
           {/* <Form.Item name="remember" valuePropName="checked" label={null}>
