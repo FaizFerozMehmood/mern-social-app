@@ -22,7 +22,7 @@ const location = useLocation()
   }, [location.pathname]);
   return (
     <>
-      {token && <Navbar />}
+      {token && <Navbar />} 
       <Routes>
         <Route
           path="/login"
