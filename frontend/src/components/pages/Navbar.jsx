@@ -6,6 +6,7 @@ import {
   TeamOutlined,
   LogoutOutlined,
   UploadOutlined,
+  MessageOutlined
 } from "@ant-design/icons";
 import { Avatar, Modal, Upload } from "antd";
 import { Button, Popconfirm } from "antd";
@@ -63,7 +64,7 @@ function Navbar({ getPosts }) {
           src="/s.png"
           alt=""
           height={30}
-          style={{ width: "auto", objectFit: "contain" ,borderRadius:"25px"}}
+          style={{ width: "auto", objectFit: "contain", borderRadius: "25px" }}
         />
 
         <ul
@@ -79,6 +80,11 @@ function Navbar({ getPosts }) {
           <li>
             <NavLink to={"/"} style={navStyle}>
               <HomeOutlined style={{ fontSize: "25px" }} />
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to={"/chat"} style={navStyle}>
+              <MessageOutlined style={{ fontSize: "25px" }} />
             </NavLink>
           </li>
           <li onClick={() => setOpen(true)}>

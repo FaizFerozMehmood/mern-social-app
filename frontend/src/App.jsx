@@ -12,6 +12,7 @@ import Navbar from './components/pages/Navbar.jsx'
 import ActiveUsers from './components/userDasboard/ActiveUsers.jsx'
 import { useState } from 'react'
 import { useEffect } from 'react'
+import UserPlusChat from "./components/userDasboard/UserPlusChat.jsx"
 
 function App() {
   const [token, setToken] = useState(null);
@@ -22,7 +23,7 @@ const location = useLocation()
   }, [location.pathname]);
   return (
     <>
-      {token && <Navbar />} 
+      {token && <Navbar />}
       <Routes>
         <Route
           path="/login"
@@ -62,6 +63,14 @@ const location = useLocation()
           element={
             <ProtectedRoutes>
               <ActiveUsers />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="chat"
+          element={
+            <ProtectedRoutes>
+              <UserPlusChat />
             </ProtectedRoutes>
           }
         />
