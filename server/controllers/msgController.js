@@ -34,7 +34,9 @@ export const getMsg = async (req, res) => {
         { sender: req.user.id, receiver: userId },
         { sender: userId, receiver: req.user.id },
       ],
-    }).populate("sender receiver", "userName profilePic");
+    })
+      .sort({ createdAt: 1 })
+      .populate("sender receiver", "userName profileImage");
 
     res.json(messages);
     console.log("message", messages);
