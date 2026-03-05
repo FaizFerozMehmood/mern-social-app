@@ -236,7 +236,7 @@ function Post() {
                     style={{
                       width: "100%",
                       display: "block",
-                      maxHeight: "600px",
+                      maxHeight: "1400px",
                       objectFit: "cover",
                     }}
                   />

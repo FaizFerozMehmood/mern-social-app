@@ -1,18 +1,23 @@
+import { HashLoader } from "react-spinners";
 
 import React from 'react';
-import { LoadingOutlined } from '@ant-design/icons';
-import { Flex, Spin } from 'antd';
+
 const Loader = () => (
-  <Flex style={{
-    marginTop:"20px",
-    display:"flex",
-    justifyContent:'center',
-    // alignItems:"center"
-  }}>
+  <div
+    style={{
+      // marginTop: "20px",
+      display: "flex",
+      justifyContent: "center",
+      alignItems:"center",
+      height:"90vh",
+      width:"100%"
+    }}
+  >
     {/* <Spin indicator={<LoadingOutlined spin />} size="small" /> */}
     {/* <Spin indicator={<LoadingOutlined spin />} /> */}
     {/* <Spin indicator={<LoadingOutlined spin />} size="large" /> */}
-    <Spin indicator={<LoadingOutlined style={{ fontSize: 48,color:"black" }} spin />} />
-  </Flex>
+
+    <HashLoader size={40} color="#22c55e" /> 
+  </div>
 );
 export default Loader;

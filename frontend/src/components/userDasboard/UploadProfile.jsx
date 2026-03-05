@@ -38,6 +38,7 @@ function UploadProfile() {
   const [getuser, setGetUser] = useState({});
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  
   const handleCommentSubmit = async (postId) => {
     if (!mycomment.trim()) return;
     const token = localStorage.getItem("token");
@@ -169,6 +170,16 @@ function UploadProfile() {
   // useEffect(()=>{
   //   handleFollow();
   // },[])
+  const updateProfile = async()=>{
+    try {
+      const token = localStorage.getItem('token')
+      const response = await api.put(`/enhance/${loggedInUserId},"data",`,{
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleFollow = async () => {
     const token = localStorage.getItem("token");
