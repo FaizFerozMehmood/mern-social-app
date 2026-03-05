@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(
   cors({
     origin: "https://mern-social-app-pfjf.vercel.app",
-    // origin: "http://localhost:5173",
+    //origin: "http://localhost:5173",
     // methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
@@ -36,6 +36,7 @@ app.use("/comments", comments);
 app.use("/likes", likeRoute);
 app.use("/upload", uploadFile);
 app.use("/profile", uploadFile);
+app.use("/profile/cover", uploadFile);
 // app.use("/api/auth", authRoutes);
 app.use("/api/messages", msgRoutes);
 

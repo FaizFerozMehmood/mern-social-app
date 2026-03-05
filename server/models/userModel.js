@@ -29,10 +29,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    bio: { type: String, required: true },
+    bio: { type: String },
 
-    city: { type: String, required: true },
-    education: { type: String, required: true },
+    city: { type: String },
+    education: { type: String },
   },
   { timestamps: true },
 );

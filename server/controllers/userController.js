@@ -152,14 +152,43 @@ export const searchUsers = async (req, res) => {
     const users = await User.find({
       userName: { $regex: userName, $options: "i" },
     });
-    res
-      .status(200)
-      .json({
-        message: users.length ? "Users fetched..!" : "No user found..!",
-        data: users,
-      });
+    res.status(200).json({
+      message: users.length ? "Users fetched..!" : "No user found..!",
+      data: users,
+    });
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ message: "error searching users" });
+  }
+};
+
+export const enhanceUserProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { coverImage, bio, city, education } = req.body;
+    if (!coverImage || !bio || !city || !education) {
+      return res.status(404).json({ message: " All fileds are req..!" });
+    }
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        coverImage,
+        bio,
+        city,
+        education,
+      },
+      { new: true },
+    );
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "User not found or other issues..." });
+    }
+   res.status(201).json({ message: "User details have been updated" ,user});
+  } catch (error) {
+    console.log(error.message)
+    res
+      .status(500)
+      .json({ message: "error updating user..!", error: error.message });
   }
 };
