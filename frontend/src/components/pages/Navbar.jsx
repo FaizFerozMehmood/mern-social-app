@@ -13,7 +13,7 @@ import { Button, Popconfirm } from "antd";
 import FileUploader from "../userDasboard/Upload";
 // import s.png from "../../../public/s.png"
 
-function Navbar({ getPosts }) {
+function Navbar({ getPosts,image=undefined }) {
   
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ function Navbar({ getPosts }) {
     paddingBottom: "6px",
   });
 
-  const profileImage = localStorage.getItem("profileImage");
+  // const profileImage = localStorage.getItem("profileImage");
   return (
     <div
       style={{
@@ -83,7 +83,7 @@ function Navbar({ getPosts }) {
             </NavLink>
           </li>
           <li>
-            <NavLink to={"/chat"} style={navStyle}>
+            <NavLink to={"/chats"} style={navStyle}>
               <MessageOutlined style={{ fontSize: "25px" }} />
             </NavLink>
           </li>
@@ -100,9 +100,9 @@ function Navbar({ getPosts }) {
           </li>
           <li>
             <NavLink to={`/profile/${userId}`} style={navStyle}>
-              {profileImage ? (
+              {image ? (
                 <Avatar
-                  src={profileImage || undefined}
+                  src={image || undefined}
                   // size={30}
                   style={{
                     backgroundColor: "#1877f2",

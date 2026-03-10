@@ -6,7 +6,7 @@ import { notification } from "antd";
 
 const FileUploader = ({ getPosts }) => {
   const [file, setFile] = useState(null);
-  const [status, setStatus] = useState("idle"); // idle | uploading | success | error
+  const [status, setStatus] = useState("idle");
   const [text, setText] = useState("");
   const [imagePath, setImagePath] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);

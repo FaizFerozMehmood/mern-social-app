@@ -175,33 +175,36 @@ function Post() {
                       display: "flex",
                       alignItems: "center",
                       gap: "12px",
-                      cursor: "pointer",
+                      
                     }}
                     // onClick={handleNavigateProfile}
-                    onClick={() => handleProfileNav(d.userId?._id)}
+                    // onClick={() => handleProfileNav(d.userId?._id)}
                   >
                     {d.userId?.profileImage ? (
                       <img
+                      onClick={() => handleProfileNav(d.userId?._id)}
                         src={d.userId.profileImage}
                         alt="creator"
                         height={40}
                         width={40}
-                        style={{ borderRadius: "50%", objectFit: "cover" }}
+                        style={{ borderRadius: "50%", objectFit: "cover" ,cursor: "pointer",}}
                       />
                     ) : (
                       <Avatar
+                      onClick={() => handleProfileNav(d.userId?._id)}
                         size={40}
                         style={{
                           backgroundColor: "#1877f2",
                           color: "#fff",
                           fontSize: "18px",
+                          cursor: "pointer",
                         }}
                       >
                         {d.userId.userName?.charAt(0)?.toUpperCase() || "U"}
                       </Avatar>
                     )}
                     <div style={{ flex: 1 }}>
-                      <strong style={{ fontSize: "15px", color: "#050505" }}>
+                      <strong onClick={() => handleProfileNav(d.userId?._id)} style={{ fontSize: "15px", color: "#050505" ,cursor: "pointer"}}>
                         {d.userId?.userName}
                       </strong>
                       <div style={{ fontSize: "13px", color: "#65676b" }}>

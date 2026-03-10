@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-import { Avatar, Button,Modal } from "antd";
+import { Avatar, Button,Modal,Empty, Tooltip } from "antd";
 import api from "../../api/axios";
 
 import {
   LikeOutlined,
   CommentOutlined,
-  ShareAltOutlined,
+  
   UserOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -14,10 +14,12 @@ import Loader from "../Loader";
 
 function UploadProfile() {
     const [open, setOpen] = useState(false);
+    const [profileModelOpen, setProfileModeOpen] = useState(false)
     const [selectedLikes, setSelectedLikes] = useState([]);
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
   const [isFollowing, setIsFollowing] = useState(false);
+  
   const loggedInUserId = localStorage.getItem('id')
   const handleProfileNav = (userId) => {
     if (!userId) return;
@@ -25,19 +27,28 @@ function UploadProfile() {
       navigate(`/profile/${userId}`);
     }
   };
+  const [followersList, setFollowersLists] = useState([])
+  const [followingList, setFollowingLists] = useState([])
   const [showComments, setShowComments] = useState({});
   const [mycomment, setMycomment] = useState("");
   const fileInputRef = useRef(null);
   const [data, setData] = useState([]);
+  const [coverCloudUrl, setCoverCloudUrl] = useState(null)
+  const [bio,setBio] = useState('')
+  const [city,setCity] = useState('')
+  const [education,setEducation] = useState('')
 
   const [isLoading, setIsLoading] = useState(false);
   const { userId } = useParams();
   console.log(userId);
 
   const [file, setFile] = useState(null);
+  const [coverUrl, setCoverUrl] = useState('')
   const [getuser, setGetUser] = useState({});
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [isCurrentUserFollowing, setIsCurrentUserFollowing] = useState(false)
+  
   
   const handleCommentSubmit = async (postId) => {
     if (!mycomment.trim()) return;
@@ -126,8 +137,13 @@ function UploadProfile() {
 
     }
     const user = response.data?.user;
-    console.log("user", response);
+    console.log("current user", response);
     console.log("followiers", user?.followers);
+    setFollowersLists(user?.followers)
+    setFollowingLists(user?.following)
+    const Is = user?.followers?.map(f=> f._id).includes(loggedInUserId)
+    console.log("Is",Is)
+    setIsCurrentUserFollowing(Is)
     setFollowingCount(user?.following?.length || 0);
     setGetUser(user);
     const isAlreadyFollowing =
@@ -170,16 +186,45 @@ function UploadProfile() {
   // useEffect(()=>{
   //   handleFollow();
   // },[])
-  const updateProfile = async()=>{
+  const goToChat =(id)=>{
+navigate(`/chats/${id}`)
+  }
+  const handleUserDataSubmision = async()=>{
+    if(!bio || !coverCloudUrl || !city || !education) return alert("All fields are req..!")
+    const data = {bio,coverImage:coverCloudUrl,city,education}
+    if(!data) return alert("helpoo")
+    console.log(data)
     try {
       const token = localStorage.getItem('token')
-      const response = await api.put(`/enhance/${loggedInUserId},"data",`,{
+      const response = await api.put(`/enhance/${loggedInUserId}`,data,{
         headers: { Authorization: `Bearer ${token}` },
       })
+      console.log(response,"reposne from user data form")
+      setBio('');
+      setEducation('');
+      setCoverCloudUrl('');
+      setCity('')
+      getUser()
     } catch (error) {
       console.log(error)
     }
   }
+const handleCoverImage = (e)=>{
+const file = e.target.files[0]
+console.log("cover",file)
+setCoverUrl(file)
+
+}
+const handleCoverUpload = async()=>{
+  console.log("cover url to go=>",coverUrl)
+   const formData = new FormData();
+    formData.append("file", coverUrl);
+  const response = await api.post('/profile/cover/upload',formData,{ headers: {
+          "Content-Type": "multipart/form-data",
+        },})
+  console.log("cover api res",response.data?.data)
+  setCoverCloudUrl(response.data?.data)
+}
 
   const handleFollow = async () => {
     const token = localStorage.getItem("token");
@@ -201,172 +246,407 @@ function UploadProfile() {
     }
   };
 
+  
   return (
-    <div>
-      {isOwner ? (
-        <>
-          {/* ===== OWNER PROFILE ===== */}
-
-          <div style={{ textAlign: "center", marginTop: 20 }}>
-            <h6>
-              <strong>
-                {getuser.userName}
-                {","}
-              </strong>{" "}
-              Welcome to your profile!
-            </h6>
-          </div>
-
-          {/* Avatar */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: 20,
-            }}
-          >
-            {getuser?.profileImage ? (
-              <div
-                style={{
-                  position: "relative",
-                  width: 100,
-                  height: 100,
-                  cursor: "pointer",
-                }}
-                onClick={handleAvatarClick}
-              >
-                <img
-                  src={getuser.profileImage}
-                  alt="profile"
-                  height={100}
-                  width={100}
-                  style={{
-                    borderRadius: "50%",
-                    objectFit: "cover",
-                    width: "100%",
-                    height: "100%",
-                  }}
-                />
-
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    transform: "translate(25%, 25%)",
-                    backgroundColor: "#c522ba",
-                    color: "#fff",
-                    fontSize: "10px",
-                    padding: "2px 6px",
-                    borderRadius: "10px",
-                    fontWeight: "500",
-                  }}
-                >
-                  Update profile
-                </span>
-              </div>
-            ) : (
-              <div
-                style={{
-                  position: "relative",
-                  width: 100,
-                  height: 100,
-                  cursor: "pointer",
-                }}
-                onClick={handleAvatarClick}
-              >
-                <Avatar
-                  size={100}
-                  style={{
-                    backgroundColor: "#87d068",
-                    width: "100%",
-                    height: "100%",
-                  }}
-                >
-                  {getuser?.userName?.charAt(0).toUpperCase() || "U"}
-                </Avatar>
-
-                <span
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    transform: "translate(25%, 25%)",
-                    backgroundColor: "#22c55e",
-                    color: "#fff",
-                    fontSize: "10px",
-                    padding: "2px 6px",
-                    borderRadius: "10px",
-                    fontWeight: "500",
-                  }}
-                >
-                  Update profile
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* Followers / Following */}
-          <div style={{ textAlign: "center", marginTop: 12 }}>
-            <p>
-              <strong>{followersCount}</strong> Followers
-            </p>
-            <p>
-              <strong>{followingCount}</strong> Following
-            </p>
-          </div>
-
-          {/* Upload Button */}
-          <div style={{ textAlign: "center", marginTop: 20, marginBottom: 20 }}>
-            <Button onClick={handleProfile} disabled={!file}>
-              {isLoading ? "Uploading..." : "Upload Profile"}
-            </Button>
-          </div>
-
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-            accept="image/*"
-          />
-        </>
-      ) : (
-        <>
-          <div style={{ textAlign: "center", marginTop: 40 }}>
-            <h4>{getuser?.userName}'s Profile</h4>
-
-            <img
-              src={getuser?.profileImage}
-              alt="profile"
-              height={100}
-              width={100}
-              style={{
-                borderRadius: "50%",
-                objectFit: "cover",
-                marginTop: 12,
-              }}
-            />
-
-            <div style={{ marginTop: 16 }}>
-              <button onClick={handleFollow}>
-                {isFollowing ? "Unfollow" : "Follow"}
-              </button>
-            </div>
-
-            <div style={{ marginTop: 12 }}>
-              <p>
-                <strong>{followersCount}</strong> Followers
-              </p>
-              <p>
-                <strong>{followingCount}</strong> Following
-              </p>
-            </div>
-          </div>
-        </>
+    <div >
+     {isOwner ? (
+  <>
+    {/* ===== COVER IMAGE ===== */}
+    <div
+      style={{
+        width: "100%",
+        height: "220px",
+        backgroundColor: "#e5e7eb",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {getuser?.coverImage && (
+        <img
+          src={getuser.coverImage}
+          alt="cover"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
       )}
 
-      {/* <p>{followingCount}</p> */}
+      {/* Update profile button */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+        }}
+      >
+        <Button type="primary" onClick={() => setProfileModeOpen(true)}>
+          Update Profile
+        </Button>
+      </div>
+    </div>
+
+    {/* ===== AVATAR ===== */}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: -50,
+      }}
+    >
+      {getuser?.profileImage ? (
+        <div
+          style={{
+            position: "relative",
+            width: 110,
+            height: 110,
+            cursor: "pointer",
+          }}
+          onClick={handleAvatarClick}
+        >
+          <img
+            src={getuser.profileImage}
+            alt="profile"
+            style={{
+              borderRadius: "50%",
+              objectFit: "cover",
+              width: "100%",
+              height: "100%",
+              border: "4px solid white",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+            }}
+          />
+
+          <span
+            style={{
+              position: "absolute",
+              bottom: 0,
+              right: 0,
+              transform: "translate(25%,25%)",
+              backgroundColor: "#1677ff",
+              color: "#fff",
+              fontSize: "10px",
+              padding: "4px 8px",
+              borderRadius: "12px",
+            }}
+          >
+            Edit
+          </span>
+        </div>
+      ) : (
+        <Avatar
+          size={110}
+          style={{
+            backgroundColor: "#1677ff",
+            fontSize: 40,
+            border: "4px solid white",
+          }}
+          onClick={handleAvatarClick}
+        >
+          {getuser?.userName?.charAt(0).toUpperCase()}
+        </Avatar>
+      )}
+    </div>
+
+    {/* ===== USER INFO ===== */}
+    <div
+      style={{
+        textAlign: "center",
+        marginTop: 15,
+      }}
+    >
+      <h2 style={{ marginBottom: 5 }}>{getuser.userName}</h2>
+      <p style={{ color: "#666" }}>Welcome to your profile</p>
+    </div>
+
+    {/* ===== BIO SECTION ===== */}
+    <div
+      style={{
+        maxWidth: 500,
+        margin: "20px auto",
+        background: "#fff",
+        padding: 20,
+        borderRadius: 10,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        textAlign: "center",
+      }}
+    >
+      {getuser?.bio && (
+        <p>
+          <strong>Bio:</strong> {getuser.bio}
+        </p>
+      )}
+
+      {getuser?.city && (
+        <p>
+          <strong>City:</strong> {getuser.city}
+        </p>
+      )}
+
+      {getuser?.education && (
+        <p>
+          <strong>Education:</strong> {getuser.education}
+        </p>
+      )}
+    </div>
+
+    {/* ===== FOLLOWERS ===== */}
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        gap: 40,
+        marginTop: 10,
+      }}
+    >
+      <div style={{ textAlign: "center" }}>
+        <h3>{followersCount}</h3>
+        <span style={{ color: "#666" }}>Followers</span>
+        <div style={{display: "flex", gap: "8px", alignItems: "center" }} >
+         {followersList?.map((f)=>(
+            <Tooltip key={f._id} title={f.userName}>
+
+            <Avatar src={f.profileImage} size={20}  icon={<UserOutlined/>}/>
+            </Tooltip>
+            
+          ))}
+          </div>
+      </div>
+
+      <div style={{ textAlign: "center" }}>
+        <h3>{followingCount}</h3>
+        <span style={{ color: "#666" }}>Following</span>
+        <div style={{display: "flex", gap: "8px", alignItems: "center" }} >
+         {followingList?.map((f)=>(
+            <Tooltip key={f._id} title={f.userName}>
+
+            <Avatar src={f.profileImage} size={20}  icon={<UserOutlined/>}/>
+            </Tooltip>
+            
+          ))}
+          </div>
+        
+      </div>
+    </div>
+
+    {/* ===== PROFILE IMAGE UPLOAD ===== */}
+    <div style={{ textAlign: "center", marginTop: 20,marginBottom:20 }}>
+      <Button onClick={handleProfile} disabled={!file}>
+        {isLoading ? "Uploading..." : "Upload Profile"}
+      </Button>
+      {/* <Button onClick={()=>goToChat(getuser?._id)}>Message</Button> */}
+    </div>
+
+    <input
+      type="file"
+      ref={fileInputRef}
+      onChange={handleFileChange}
+      style={{ display: "none" }}
+      accept="image/*"
+    />
+
+    {/* ===== PROFILE UPDATE MODAL ===== */}
+    <Modal
+      open={profileModelOpen}
+      onCancel={() => setProfileModeOpen(false)}
+      footer={null}
+      width={650}
+      destroyOnClose
+      title="Update your profile"
+    >
+      <input
+        type="text"
+        placeholder="Bio"
+        onChange={(e) => setBio(e.target.value)}
+        style={{ width: "100%", marginBottom: 10, padding: 8 }}
+      />
+
+      <input
+        type="text"
+        placeholder="City"
+        onChange={(e) => setCity(e.target.value)}
+        style={{ width: "100%", marginBottom: 10, padding: 8 }}
+      />
+
+      <input
+        type="text"
+        placeholder="Education"
+        onChange={(e) => setEducation(e.target.value)}
+        style={{ width: "100%", marginBottom: 10, padding: 8 }}
+      />
+
+      <input type="file" onChange={handleCoverImage} />
+
+      <div style={{ marginTop: 10 }}>
+        <button onClick={handleCoverUpload}>Upload</button>
+      </div>
+
+      <Button
+        type="primary"
+        onClick={handleUserDataSubmision}
+        style={{ marginTop: 15 }}
+      >
+        Submit
+      </Button>
+    </Modal>
+  </>
+) : (
+ <>
+  {/* ===== OTHER COVER IMAGE ===== */}
+  <div
+    style={{
+      width: "100%",
+      height: "220px",
+      background: getuser?.coverImage
+        ? "transparent"
+        : "linear-gradient(135deg,#1677ff,#69c0ff)",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
+    {getuser?.coverImage && (
+      <img
+        src={getuser.coverImage}
+        alt="cover"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
+    )}
+  </div>
+
+ 
+  {/* ===== PROFILE IMAGE / AVATAR ===== */}
+<div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    marginTop: -55,
+    position: "relative",
+    zIndex: 2
+  }}
+>
+  {getuser?.profileImage ? (
+    <img
+      src={getuser.profileImage}
+      alt="profile"
+      style={{
+        width: 110,
+        height: 110,
+        borderRadius: "50%",
+        objectFit: "cover",
+        border: "4px solid white",
+        boxShadow: "0 4px 10px rgba(0,0,0,0.2)"
+      }}
+    />
+  ) : (
+    <Avatar
+      size={110}
+      style={{
+        backgroundColor: "#1677ff",
+        fontSize: 40,
+        border: "4px solid white"
+      }}
+    >
+      {getuser?.userName?.charAt(0).toUpperCase()}
+    </Avatar>
+  )}
+</div>
+
+  {/* ===== USER INFO ===== */}
+  <div 
+    style={{
+      textAlign: "center",
+      marginTop: 15,
+    }}
+  >
+    <h2 style={{ marginBottom: 5 }}>{getuser?.userName}</h2>
+  </div>
+
+  {/* ===== BIO SECTION ===== */}
+  <div
+    style={{
+      maxWidth: 500,
+      margin: "20px auto",
+      background: "#fff",
+      padding: 20,
+      borderRadius: 10,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+      textAlign: "center",
+    }}
+  >
+    {getuser?.bio && (
+      <p>
+        <strong>Bio:</strong> {getuser.bio}
+      </p>
+    )}
+
+    {getuser?.city && (
+      <p>
+        <strong>City:</strong> {getuser.city}
+      </p>
+    )}
+
+    {getuser?.education && (
+      <p>
+        <strong>Education:</strong> {getuser.education}
+      </p>
+    )}
+  </div>
+
+  {/* ===== FOLLOW BUTTON ===== */}
+  <div style={{ textAlign: "center", marginTop: 10, }}>
+    <Button type="primary" onClick={handleFollow}>
+      {isCurrentUserFollowing ? "Unfollow" : "Follow"}
+    </Button>
+    
+    <Button color="pink" variant="solid" onClick={()=>goToChat(getuser?._id)}>Message</Button>
+  </div>
+
+  {/* ===== FOLLOWERS ===== */}
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "center",
+      gap: 40,
+      marginTop: 20,
+      marginBottom:20
+    }}
+  >
+    <div style={{ textAlign: "center" }}>
+      <h3>{followersCount}</h3>
+      <span style={{ color: "#666" }}>Followers</span>
+      <div style={{display: "flex", gap: "8px", alignItems: "center" }} >
+         {followersList?.map((f)=>(
+            <Tooltip key={f._id} title={f.userName}>
+
+            <Avatar src={f.profileImage} size={20}  icon={<UserOutlined/>}/>
+            </Tooltip>
+            
+          ))}
+          </div>
+    </div>
+
+    <div style={{ textAlign: "center" }}>
+      <h3>{followingCount}</h3>
+      <span style={{ color: "#666" }}>Following</span>
+      <div style={{display: "flex", gap: "8px", alignItems: "center" }} >
+         {followingList?.map((f)=>(
+            <Tooltip key={f._id} title={f.userName}>
+
+            <Avatar src={f.profileImage} size={20}  icon={<UserOutlined/>}/>
+            </Tooltip>
+            
+          ))}
+          </div>
+    </div>
+  </div>
+</>
+)}
+      
       <div
         style={{
           backgroundColor: "#f0f2f5",
@@ -756,7 +1036,7 @@ function UploadProfile() {
             <div>
               {isError ? (
                 <div style={{ display: "flex", justifyContent: "center" }}>
-                  <h5>No posts Yet..!</h5>
+                  <Empty/>
                 </div>
               ) : (
                 <Loader />
@@ -765,6 +1045,15 @@ function UploadProfile() {
           )}
         </div>
       </div>
+      <Modal
+        open={open}
+        onCancel={() => setOpen(false)}
+        footer={null}
+        width={650}
+        destroyOnClose
+      >
+        {/* <FileUploader getPosts={getPosts} /> */}
+      </Modal>
     </div>
   );
 }

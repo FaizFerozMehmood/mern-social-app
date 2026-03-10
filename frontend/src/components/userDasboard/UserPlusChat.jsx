@@ -1,40 +1,118 @@
 import { useState, useEffect } from "react";
 import Chat from "./Chat";
 import api from "../../api/axios";
-import { UserOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
+import { useParams, useNavigate } from "react-router-dom";
 
 function UserPlusChat({ user }) {
+
+  // Store all users for sidebar
   const [users, setUsers] = useState([]);
+
+  // Currently selected chat user
   const [selectedUser, setSelectedUser] = useState(null);
+
+  // Detect mobile screen
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Logged-in user id
   const loggedInID = localStorage.getItem("id");
 
-  // Detect screen resize
+  // URL parameter ( /chats/:userId )
+  const { userId } = useParams();
+
+  // Navigation
+  const navigate = useNavigate();
+
+
+
+  /* --------------------------------------------------
+     1️⃣ Detect screen resize (mobile vs desktop)
+  -------------------------------------------------- */
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
     window.addEventListener("resize", handleResize);
+
     return () => window.removeEventListener("resize", handleResize);
+
   }, []);
 
-  // Fetch users
+
+
+  /* --------------------------------------------------
+     2️⃣ Fetch all users for chat list
+  -------------------------------------------------- */
   useEffect(() => {
+
     const token = localStorage.getItem("token");
 
     const getUsers = async () => {
       try {
+
         const res = await api.get("/users", {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         if (res.status === 200) {
           setUsers(res.data?.data || []);
         }
+
       } catch (error) {
         console.log(error.message);
       }
     };
 
     getUsers();
+
   }, []);
+
+
+
+  /* --------------------------------------------------
+     3️⃣ Handle chat opening from URL
+     Example:
+     /chats        → no user selected
+     /chats/123    → open chat with user 123
+  -------------------------------------------------- */
+  useEffect(() => {
+
+    if (!users.length) return;
+
+    if (userId) {
+
+      const foundUser = users.find((u) => u._id === userId);
+
+      if (foundUser) {
+        setSelectedUser(foundUser);
+      }
+
+    } else {
+      setSelectedUser(null);
+    }
+
+  }, [userId, users]);
+
+
+
+  /* --------------------------------------------------
+     4️⃣ When clicking a user from sidebar
+     - set state
+     - update URL
+  -------------------------------------------------- */
+  const openChat = (u) => {
+
+    setSelectedUser(u);
+
+    // Update URL
+    navigate(`/chats/${u._id}`);
+
+  };
+
+
 
   return (
     <div
@@ -46,8 +124,12 @@ function UserPlusChat({ user }) {
         background: "#f5f5f5",
       }}
     >
-      {/* USERS LIST */}
+
+      {/* =================================================
+         USERS LIST SIDEBAR
+      ================================================= */}
       {(!isMobile || (isMobile && !selectedUser)) && (
+
         <div
           style={{
             width: isMobile ? "100%" : "30%",
@@ -56,6 +138,8 @@ function UserPlusChat({ user }) {
             overflowY: "auto",
           }}
         >
+
+          {/* Sidebar header */}
           <div
             style={{
               padding: "15px",
@@ -68,14 +152,17 @@ function UserPlusChat({ user }) {
             Chats
           </div>
 
+
+          {/* Users list */}
           {users.map((u) => {
+
             const isActive = selectedUser?._id === u._id;
-            const isMe = loggedInID === u?._id;
+            const isMe = loggedInID === u._id;
 
             return (
               <div
                 key={u._id}
-                onClick={() => setSelectedUser(u)}
+                onClick={() => openChat(u)}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -86,7 +173,10 @@ function UserPlusChat({ user }) {
                   borderBottom: "1px solid #f0f0f0",
                 }}
               >
-                {u?.profileImage ? (
+
+                {/* Avatar */}
+                {u.profileImage ? (
+
                   <img
                     src={u.profileImage}
                     alt=""
@@ -97,7 +187,9 @@ function UserPlusChat({ user }) {
                       objectFit: "cover",
                     }}
                   />
+
                 ) : (
+
                   <div
                     style={{
                       width: "45px",
@@ -111,9 +203,12 @@ function UserPlusChat({ user }) {
                   >
                     <UserOutlined style={{ fontSize: "22px" }} />
                   </div>
+
                 )}
 
+                {/* Username */}
                 <div>
+
                   <p
                     style={{
                       margin: 0,
@@ -123,6 +218,7 @@ function UserPlusChat({ user }) {
                   >
                     {isMe ? "ME" : u.userName}
                   </p>
+
                   <p
                     style={{
                       margin: 0,
@@ -132,54 +228,72 @@ function UserPlusChat({ user }) {
                   >
                     Tap to chat...
                   </p>
+
                 </div>
+
               </div>
             );
+
           })}
+
         </div>
       )}
 
-      {/* CHAT SECTION */}
+
+
+      {/* =================================================
+         CHAT SECTION
+      ================================================= */}
       {selectedUser && (
+
         <div
           style={{
             width: !isMobile ? "70%" : "100%",
             background: "#e5ddd5",
             position: "relative",
-            transition: "0.3s",
           }}
         >
-          {/* Back button on mobile */}
+
+          {/* Mobile back button */}
           {isMobile && (
+
             <button
-              onClick={() => setSelectedUser(null)}
+              onClick={() => {
+                setSelectedUser(null);
+                navigate("/chats");
+              }}
               style={{
                 position: "absolute",
                 top: "18px",
-                left: "300px",
-                // right:"250px",
+                left: "290px",
                 padding: "6px 10px",
                 border: "none",
                 borderRadius: "5px",
-                background: "#075e54",
+                background: "#84b7b2",
                 color: "#fff",
                 fontWeight: "bold",
                 cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
                 zIndex: 10,
               }}
             >
-              <ArrowLeftOutlined /> Back
+              {"<=Back"}
             </button>
+
           )}
+
           <Chat user={user} selectedUser={selectedUser} />
+
         </div>
+
       )}
 
-      {/* Default message for desktop */}
+
+
+      {/* =================================================
+         DESKTOP EMPTY STATE
+      ================================================= */}
       {!isMobile && !selectedUser && (
+
         <div
           style={{
             width: "70%",
@@ -191,9 +305,11 @@ function UserPlusChat({ user }) {
             fontSize: "18px",
           }}
         >
-          Select a user to start chat
+          Select a user to start chat...!
         </div>
+
       )}
+
     </div>
   );
 }

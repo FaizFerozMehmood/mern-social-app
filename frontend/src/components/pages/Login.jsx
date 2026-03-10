@@ -19,6 +19,7 @@ try {
     const response =  await api.post("/login",values)
     localStorage.setItem("id",response.data?.id)
     console.log(response.data)
+    localStorage.setItem("user", JSON.stringify(response.data));
     localStorage.setItem("token",response?.data?.token)
     notification.success({
       message: "Success",

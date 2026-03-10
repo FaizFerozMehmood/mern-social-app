@@ -16,14 +16,20 @@ import UserPlusChat from "./components/userDasboard/UserPlusChat.jsx"
 // .......................
 function App() {
   const [token, setToken] = useState(null);
+const [image, setProfileImage] = useState(localStorage.getItem("profileImage") || '');
+const user = JSON.parse(localStorage.getItem('user'))
 // ........
 const location = useLocation()
   useEffect(() => {
     setToken(localStorage.getItem("token"));
+     const img = localStorage.getItem("profileImage");
+  setProfileImage(img || '');
+   
+
   }, [location.pathname]);
   return (
     <>
-      {token && <Navbar />}
+      {token && <Navbar image={image}/>}
       <Routes>
         <Route
           path="/login"
@@ -67,10 +73,18 @@ const location = useLocation()
           }
         />
         <Route
-          path="chat"
+          path="/chats/:userId"
           element={
             <ProtectedRoutes>
-              <UserPlusChat />
+              <UserPlusChat user={user} />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/chats"
+          element={
+            <ProtectedRoutes>
+              <UserPlusChat user={user} />
             </ProtectedRoutes>
           }
         />
