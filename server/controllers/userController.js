@@ -103,8 +103,10 @@ export const getUser = async (req, res) => {
         .json({ message: "Id not found while getting user" });
     }
     const user = await User.findById(id).select(
-      "userName profileImage followers following ",
-    );
+      "userName profileImage followers following bio coverImage city education ",
+    )
+    .populate("followers", "userName profileImage")
+  .populate("following", "userName profileImage");
     if (!user) {
       return res
         .status(404)
