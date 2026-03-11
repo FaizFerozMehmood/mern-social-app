@@ -6,8 +6,9 @@ import api from "../../api/axios";
 import {
   LikeOutlined,
   CommentOutlined,
-  
+  ProfileOutlined, EnvironmentOutlined, BookOutlined,
   UserOutlined,
+  FireTwoTone,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import Loader from "../Loader";
@@ -43,7 +44,7 @@ function UploadProfile() {
   console.log(userId);
 
   const [file, setFile] = useState(null);
-  const [coverUrl, setCoverUrl] = useState('')
+  const [coverUrl, setCoverUrl] = useState(null)
   const [getuser, setGetUser] = useState({});
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
@@ -192,7 +193,7 @@ navigate(`/chats/${id}`)
   const handleUserDataSubmision = async()=>{
     if(!bio || !coverCloudUrl || !city || !education) return alert("All fields are req..!")
     const data = {bio,coverImage:coverCloudUrl,city,education}
-    if(!data) return alert("helpoo")
+  
     console.log(data)
     try {
       const token = localStorage.getItem('token')
@@ -202,9 +203,10 @@ navigate(`/chats/${id}`)
       console.log(response,"reposne from user data form")
       setBio('');
       setEducation('');
-      setCoverCloudUrl('');
+      setCoverCloudUrl(null);
       setCity('')
       getUser()
+      setProfileModeOpen(false)
     } catch (error) {
       console.log(error)
     }
@@ -335,18 +337,22 @@ const handleCoverUpload = async()=>{
           </span>
         </div>
       ) : (
+        
         <Avatar
           size={110}
           style={{
             backgroundColor: "#1677ff",
             fontSize: 40,
             border: "4px solid white",
+            cursor:"pointer"
           }}
           onClick={handleAvatarClick}
+          title="EDIT"
         >
           {getuser?.userName?.charAt(0).toUpperCase()}
         </Avatar>
       )}
+      
     </div>
 
     {/* ===== USER INFO ===== */}
@@ -361,74 +367,154 @@ const handleCoverUpload = async()=>{
     </div>
 
     {/* ===== BIO SECTION ===== */}
+   <div
+  style={{
+    maxWidth: 500,
+    margin: "20px auto",
+    background: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+  }}
+>
+  {getuser?.bio && (
     <div
       style={{
-        maxWidth: 500,
-        margin: "20px auto",
-        background: "#fff",
-        padding: 20,
-        borderRadius: 10,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-        textAlign: "center",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        marginBottom: 10,
       }}
     >
-      {getuser?.bio && (
-        <p>
-          <strong>Bio:</strong> {getuser.bio}
-        </p>
-      )}
-
-      {getuser?.city && (
-        <p>
-          <strong>City:</strong> {getuser.city}
-        </p>
-      )}
-
-      {getuser?.education && (
-        <p>
-          <strong>Education:</strong> {getuser.education}
-        </p>
-      )}
+      <ProfileOutlined style={{ fontSize: 18, color: "#555" }} />
+      <span>{getuser.bio || "Bio not added..!"}</span>
     </div>
+  )}
 
-    {/* ===== FOLLOWERS ===== */}
+  {getuser?.city && (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        marginBottom: 10,
+      }}
+    >
+      <EnvironmentOutlined style={{ fontSize: 18, color: "#555" }} />
+      <span>{getuser.city || "City not added..!"}</span>
+    </div>
+  )}
+
+  {getuser?.education && (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
+      <BookOutlined style={{ fontSize: 18, color: "#555" }} />
+      <span>{getuser.education || "Education not added..!"}</span>
+    </div>
+  )}
+</div>
+
+   
+    <div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    gap: 40,
+    marginTop: 10,
+    flexWrap: "wrap",
+  }}
+>
+  {/* Followers */}
+  <div style={{ textAlign: "center", minWidth: "140px" }}>
+    <h3>{followersCount}</h3>
+    <span style={{ color: "#666" }}>Followers</span>
+
     <div
       style={{
         display: "flex",
         justifyContent: "center",
-        gap: 40,
-        marginTop: 10,
+        marginTop: 6,
       }}
     >
-      <div style={{ textAlign: "center" }}>
-        <h3>{followersCount}</h3>
-        <span style={{ color: "#666" }}>Followers</span>
-        <div style={{display: "flex", gap: "8px", alignItems: "center" }} >
-         {followersList?.map((f)=>(
-            <Tooltip key={f._id} title={f.userName}>
+      {followersList?.slice(0, 5).map((f, i) => (
+        <Tooltip key={f._id} title={f.userName}>
+          <Avatar
+            src={f.profileImage}
+            size={24}
+            icon={<UserOutlined />}
+            style={{
+              marginLeft: i === 0 ? 0 : -8,
+              border: "2px solid white",
+            }}
+          />
+        </Tooltip>
+      ))}
 
-            <Avatar src={f.profileImage} size={20}  icon={<UserOutlined/>}/>
-            </Tooltip>
-            
-          ))}
-          </div>
-      </div>
-
-      <div style={{ textAlign: "center" }}>
-        <h3>{followingCount}</h3>
-        <span style={{ color: "#666" }}>Following</span>
-        <div style={{display: "flex", gap: "8px", alignItems: "center" }} >
-         {followingList?.map((f)=>(
-            <Tooltip key={f._id} title={f.userName}>
-
-            <Avatar src={f.profileImage} size={20}  icon={<UserOutlined/>}/>
-            </Tooltip>
-            
-          ))}
-          </div>
-        
-      </div>
+      {followersCount > 5 && (
+        <Avatar
+          size={24}
+          style={{
+            marginLeft: -8,
+            background: "#f0f0f0",
+            color: "#555",
+            fontSize: 12,
+            border: "2px solid white",
+          }}
+        >
+          +{followersCount - 5}
+        </Avatar>
+      )}
     </div>
+  </div>
+
+  {/* Following */}
+  <div style={{ textAlign: "center", minWidth: "140px" }}>
+    <h3>{followingCount}</h3>
+    <span style={{ color: "#666" }}>Following</span>
+
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: 6,
+      }}
+    >
+      {followingList?.slice(0, 5).map((f, i) => (
+        <Tooltip key={f._id} title={f.userName}>
+          <Avatar
+            src={f.profileImage}
+            size={24}
+            icon={<UserOutlined />}
+            style={{
+              marginLeft: i === 0 ? 0 : -8,
+              border: "2px solid white",
+            }}
+          />
+        </Tooltip>
+      ))}
+
+      {followingCount > 5 && (
+        <Avatar
+          size={24}
+          style={{
+            marginLeft: -8,
+            background: "#f0f0f0",
+            color: "#555",
+            fontSize: 12,
+            border: "2px solid white",
+          }}
+        >
+          +{followingCount - 5}
+        </Avatar>
+      )}
+    </div>
+  </div>
+</div>
 
     {/* ===== PROFILE IMAGE UPLOAD ===== */}
     <div style={{ textAlign: "center", marginTop: 20,marginBottom:20 }}>
@@ -476,7 +562,9 @@ const handleCoverUpload = async()=>{
         style={{ width: "100%", marginBottom: 10, padding: 8 }}
       />
 
-      <input type="file" onChange={handleCoverImage} />
+      <input type="file" accept="image/*"
+      
+      onChange={handleCoverImage} />
 
       <div style={{ marginTop: 10 }}>
         <button onClick={handleCoverUpload}>Upload</button>
@@ -567,39 +655,60 @@ const handleCoverUpload = async()=>{
   </div>
 
   {/* ===== BIO SECTION ===== */}
-  <div
-    style={{
-      maxWidth: 500,
-      margin: "20px auto",
-      background: "#fff",
-      padding: 20,
-      borderRadius: 10,
-      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-      textAlign: "center",
-    }}
-  >
-    {getuser?.bio && (
-      <p>
-        <strong>Bio:</strong> {getuser.bio}
-      </p>
-    )}
+ <div
+  style={{
+    maxWidth: 500,
+    margin: "20px auto",
+    background: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+  }}
+>
+  {getuser?.bio && (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        marginBottom: 10,
+      }}
+    >
+      <ProfileOutlined style={{ fontSize: 18, color: "#555" }} />
+      <span>{getuser.bio || "Bio not added..!"}</span>
+    </div>
+  )}
 
-    {getuser?.city && (
-      <p>
-        <strong>City:</strong> {getuser.city}
-      </p>
-    )}
+  {getuser?.city && (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        marginBottom: 10,
+      }}
+    >
+      <EnvironmentOutlined style={{ fontSize: 18, color: "#555" }} />
+      <span>{getuser.city || "City not added..!"}</span>
+    </div>
+  )}
 
-    {getuser?.education && (
-      <p>
-        <strong>Education:</strong> {getuser.education}
-      </p>
-    )}
-  </div>
-
+  {getuser?.education && (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
+      <BookOutlined style={{ fontSize: 18, color: "#555" }} />
+      <span>{getuser.education || "Education not added..!"}</span>
+    </div>
+  )}
+</div>
   {/* ===== FOLLOW BUTTON ===== */}
   <div style={{ textAlign: "center", marginTop: 10, }}>
-    <Button type="primary" onClick={handleFollow}>
+    <Button  type="primary" onClick={handleFollow}>
       {isCurrentUserFollowing ? "Unfollow" : "Follow"}
     </Button>
     
@@ -608,42 +717,100 @@ const handleCoverUpload = async()=>{
 
   {/* ===== FOLLOWERS ===== */}
   <div
-    style={{
-      display: "flex",
-      justifyContent: "center",
-      gap: 40,
-      marginTop: 20,
-      marginBottom:20
-    }}
-  >
-    <div style={{ textAlign: "center" }}>
-      <h3>{followersCount}</h3>
-      <span style={{ color: "#666" }}>Followers</span>
-      <div style={{display: "flex", gap: "8px", alignItems: "center" }} >
-         {followersList?.map((f)=>(
-            <Tooltip key={f._id} title={f.userName}>
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    gap: 40,
+    marginTop: 10,
+    flexWrap: "wrap",
+  }}
+>
+  {/* Followers */}
+  <div style={{ textAlign: "center", minWidth: "140px" }}>
+    <h3>{followersCount}</h3>
+    <span style={{ color: "#666" }}>Followers</span>
 
-            <Avatar src={f.profileImage} size={20}  icon={<UserOutlined/>}/>
-            </Tooltip>
-            
-          ))}
-          </div>
-    </div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: 6,
+      }}
+    >
+      {followersList?.slice(0, 5).map((f, i) => (
+        <Tooltip key={f._id} title={f.userName}>
+          <Avatar
+            src={f.profileImage}
+            size={24}
+            icon={<UserOutlined />}
+            style={{
+              marginLeft: i === 0 ? 0 : -8,
+              border: "2px solid white",
+            }}
+          />
+        </Tooltip>
+      ))}
 
-    <div style={{ textAlign: "center" }}>
-      <h3>{followingCount}</h3>
-      <span style={{ color: "#666" }}>Following</span>
-      <div style={{display: "flex", gap: "8px", alignItems: "center" }} >
-         {followingList?.map((f)=>(
-            <Tooltip key={f._id} title={f.userName}>
-
-            <Avatar src={f.profileImage} size={20}  icon={<UserOutlined/>}/>
-            </Tooltip>
-            
-          ))}
-          </div>
+      {followersCount > 5 && (
+        <Avatar
+          size={24}
+          style={{
+            marginLeft: -8,
+            background: "#f0f0f0",
+            color: "#555",
+            fontSize: 12,
+            border: "2px solid white",
+          }}
+        >
+          +{followersCount - 5}
+        </Avatar>
+      )}
     </div>
   </div>
+
+  {/* Following */}
+  <div style={{ textAlign: "center", minWidth: "140px" }}>
+    <h3>{followingCount}</h3>
+    <span style={{ color: "#666" }}>Following</span>
+
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        marginTop: 6,
+      }}
+    >
+      {followingList?.slice(0, 5).map((f, i) => (
+        <Tooltip key={f._id} title={f.userName}>
+          <Avatar
+            src={f.profileImage}
+            size={24}
+            icon={<UserOutlined />}
+            style={{
+              marginLeft: i === 0 ? 0 : -8,
+              border: "2px solid white",
+            }}
+          />
+        </Tooltip>
+      ))}
+
+      {followingCount > 5 && (
+        <Avatar
+          size={24}
+          style={{
+            marginLeft: -8,
+            background: "#f0f0f0",
+            color: "#555",
+            fontSize: 12,
+            border: "2px solid white",
+          }}
+        >
+          +{followingCount - 5}
+        </Avatar>
+      )}
+    </div>
+  </div>
+</div>
 </>
 )}
       

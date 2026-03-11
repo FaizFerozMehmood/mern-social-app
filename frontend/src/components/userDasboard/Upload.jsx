@@ -4,7 +4,7 @@ import React, { useState, useCallback } from "react";
 import { Upload, Send, X, Check, AlertCircle, Loader2 } from "lucide-react";
 import { notification } from "antd";
 
-const FileUploader = ({ getPosts }) => {
+const FileUploader = ({ getPosts,setOpen }) => {
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("idle");
   const [text, setText] = useState("");
@@ -68,8 +68,9 @@ const FileUploader = ({ getPosts }) => {
       });
 
      
-      resetForm();
+      resetForm(); 
       if (getPosts) getPosts();
+      setOpen(false)
     } catch (error) {
       console.error("Submission error:", error);
       setStatus("error");

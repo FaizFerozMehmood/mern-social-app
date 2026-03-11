@@ -137,7 +137,7 @@ function Navbar({ getPosts,image=undefined }) {
         width={650}
         destroyOnClose
       >
-        <FileUploader getPosts={getPosts} />
+        <FileUploader setOpen={setOpen} getPosts={getPosts} />
       </Modal>
     </div>
   );
