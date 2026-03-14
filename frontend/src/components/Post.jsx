@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/axios";
-import { Avatar, Modal } from "antd";
+import { Avatar, Modal, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
   LikeOutlined,
@@ -130,6 +130,7 @@ function Post() {
      await api.get(`/likes/${postId}/like`, {
        headers: { Authorization: `Bearer ${token}` },
      });
+     
    } catch (err) {
      console.error(err);
      getPosts(); // rollback
@@ -246,78 +247,57 @@ function Post() {
                 )}
 
                 {/* Like and Comment Count */}
-                <div
-                  style={{
-                    padding: "8px 16px",
-                    borderBottom: "1px solid #e4e6eb",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <div>
-                    <span
-                      onClick={() => {
-                        setSelectedLikes(d.likes);
-                        setOpen(true);
-                      }}
-                      style={{
-                        fontSize: "15px",
-                        color: "#65676b",
-                        cursor: "pointer",
-                      }}
-                    >
-                      {d.likesCount} {d.likesCount === 1 ? "like" : "likes"}
-                    </span>
-                    <Modal
-                      open={open}
-                      onCancel={() => setOpen(false)}
-                      footer={null}
-                      width={650}
-                      destroyOnClose
-                      title="Liked by"
-                    >
-                      {selectedLikes.length === 0 ? (
-                        <p>NoOne</p>
-                      ) : (
-                        selectedLikes.map((data) => (
-                          <div key={data._id}>
-                            {data.profileImage ? (
-                              <img
-                                src={data.profileImage}
-                                alt=""
-                                height={20}
-                                style={{
-                                  width: "auto",
-                                  objectFit: "contain",
-                                  borderRadius: "25px",
-                                }}
-                              />
-                            ) : (
-                              <UserOutlined />
-                            )}
-                            <p>{data.userName}</p>
-                          </div>
-                        ))
-                      )}
-                    </Modal>
-                  </div>
+               <div
+  style={{
+    padding: "8px 16px",
+    borderBottom: "1px solid #e4e6eb",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  }}
+>
+  <div style={{ display: "flex", alignItems: "center" }}>
+    {d?.likes?.slice(0, 5).map((f, i) => (
+      <Tooltip key={f._id + f.profileImage} title={f.userName}>
+        <Avatar
+          src={f.profileImage}
+          size={24}
+          icon={<UserOutlined />}
+          style={{
+            marginLeft: i === 0 ? 0 : -8,
+            border: "2px solid white",
+          }}
+        />
+      </Tooltip>
+    ))}
 
-                  {d.comments.length >= 0 && (
-                    <span
-                      style={{
-                        fontSize: "15px",
-                        color: "#65676b",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => toggleComments(d._id)}
-                    >
-                      {d.comments.length}{" "}
-                      {d.comments.length === 1 ? "comment" : "comments"}
-                    </span>
-                  )}
-                </div>
+    {d?.likesCount > 5 && (
+      <Avatar
+        size={24}
+        style={{
+          marginLeft: -8,
+          background: "#f0f0f0",
+          color: "#555",
+          fontSize: 12,
+          border: "2px solid white",
+        }}
+      >
+        +{d.likesCount - 5}
+      </Avatar>
+    )}
+  </div>
 
+  <span
+    style={{
+      fontSize: "15px",
+      color: "#65676b",
+      cursor: "pointer",
+    }}
+    onClick={() => toggleComments(d._id)}
+  >
+    {d.comments.length} {d.comments.length === 1 ? "comment" : "comments"}
+  </span>
+</div>
                 {/* Action Buttons */}
                 <div
                   style={{
