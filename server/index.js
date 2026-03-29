@@ -14,6 +14,7 @@ import comments from "./routes/commentRoute.js";
 import uploadFile from "./routes/uploadFile.js";
 import likeRoute from "./routes/likeroute.js";
 import msgRoutes from "./routes/msgRoute.js"
+import visitorsRoutes from "./routes/visitorRoute.js"
 
 connectdataBase();
 
@@ -39,6 +40,7 @@ app.use("/profile", uploadFile);
 app.use("/profile/cover", uploadFile);
 // app.use("/api/auth", authRoutes);
 app.use("/api/messages", msgRoutes);
+app.use('/api/visitors',visitorsRoutes)
 
 
 const server = http.createServer(app);
