@@ -12,6 +12,8 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import Loader from "../Loader";
+import ProfileVistors from "./ProfileVistors"
+import VisitorsList from "./VisitorsList";
 
 function UploadProfile() {
     const [open, setOpen] = useState(false);
@@ -251,6 +253,7 @@ const handleCoverUpload = async()=>{
   
   return (
     <div >
+      <ProfileVistors />
      {isOwner ? (
   <>
     {/* ===== COVER IMAGE ===== */}
@@ -524,6 +527,18 @@ const handleCoverUpload = async()=>{
       {/* <Button onClick={()=>goToChat(getuser?._id)}>Message</Button> */}
     </div>
 
+    <div>
+        <div>
+      {/* <h1>Profile Page</h1> */}
+
+      {/* 🔹 Visitor save karega */}
+      {/* <ProfileVistors /> */}
+
+      {/* 🔹 Visitors show karega */}
+      <VisitorsList />
+    </div>
+    </div>
+
     <input
       type="file"
       ref={fileInputRef}
@@ -561,16 +576,17 @@ const handleCoverUpload = async()=>{
         onChange={(e) => setEducation(e.target.value)}
         style={{ width: "100%", marginBottom: 10, padding: 8 }}
       />
-
+<label> Select Cover Image  </label>
       <input type="file" accept="image/*"
       
       onChange={handleCoverImage} />
 
       <div style={{ marginTop: 10 }}>
-        <button onClick={handleCoverUpload}>Upload</button>
+        <button onClick={handleCoverUpload}>Upload Cover Image</button>
       </div>
 
       <Button
+      disabled={!bio || !education || !coverCloudUrl}
         type="primary"
         onClick={handleUserDataSubmision}
         style={{ marginTop: 15 }}
@@ -701,6 +717,7 @@ const handleCoverUpload = async()=>{
         gap: 10,
       }}
     >
+      
       <BookOutlined style={{ fontSize: 18, color: "#555" }} />
       <span>{getuser.education || "Education not added..!"}</span>
     </div>
@@ -1203,7 +1220,7 @@ const handleCoverUpload = async()=>{
             <div>
               {isError ? (
                 <div style={{ display: "flex", justifyContent: "center" }}>
-                  <Empty/>
+                  <Empty description="No posts yet..!"/>
                 </div>
               ) : (
                 <Loader />
